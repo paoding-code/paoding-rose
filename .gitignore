@@ -1,0 +1,11 @@
+.gradle
+.DS_Store
+.classpath
+.project
+.settings
+*.class
+*.swp
+*.bak
+bin
+build
+target

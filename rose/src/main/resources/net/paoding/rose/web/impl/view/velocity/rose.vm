@@ -1,0 +1,19 @@
+#**
+ * msg
+ *
+ * Macro to translate a message code into a message.
+ *
+ * @see org/springframework/web/servlet/view/velocity/spring.vm
+ * @see springMessage
+ *#
+#macro(msg $code )$springMacroRequestContext.getMessage($code)#end
+#macro(msg $code $arg0)$springMacroRequestContext.getMessage($code, $arg0)#end
+#macro(msg $code $arg0 $arg1)$springMacroRequestContext.getMessage($code, $arg0, $arg1)#end
+#macro(msg $code $arg0 $arg1 $arg2)$springMacroRequestContext.getMessage($code, $arg0, $arg1, $arg2)#end
+#macro(msg $code $arg0 $arg1 $arg2 $arg3)$springMacroRequestContext.getMessage($code, $arg0, $arg1, $arg2, $arg3)#end
+#macro(msg $code $arg0 $arg1 $arg2 $arg3 $arg4)$springMacroRequestContext.getMessage($code, $arg0, $arg1, $arg2, $arg3, $arg4)#end
+
+#**
+ * flash
+ *#
+#macro(flash $key )$!{roseInvocation.flash.get($key)}#end

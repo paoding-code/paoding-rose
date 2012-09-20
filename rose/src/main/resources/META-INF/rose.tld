@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<!--
+		CTYPE taglib PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library
+		1.2//EN" </sp
+	-->
+<taglib>
+	<tlibversion>1.2</tlibversion>
+	<jspversion>1.1</jspversion>
+	<shortname>rose</shortname>
+	<uri>http://paoding.net/rose
+	</uri>
+	<tag>
+		<name>flash</name>
+		<tagclass>net.paoding.rose.web.taglibs.FlashTag
+		</tagclass>
+		<bodycontent>JSP</bodycontent>
+		<attribute>
+			<name>key</name>
+			<required>true</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>prefix</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>suffix</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+	</tag>
+</taglib>

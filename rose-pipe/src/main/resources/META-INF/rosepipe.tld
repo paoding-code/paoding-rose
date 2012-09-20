@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<!--
+		CTYPE taglib PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library
+		1.2//EN" </sp
+	-->
+<taglib>
+	<tlibversion>1.2</tlibversion>
+	<jspversion>1.1</jspversion>
+	<shortname>rosepipe</shortname>
+	<uri>http://paoding.net/rose/pipe
+	</uri>
+	<tag>
+		<name>write</name>
+		<tagclass>net.paoding.rose.web.portal.taglibs.PipeWriteTag
+		</tagclass>
+		<bodycontent>JSP</bodycontent>
+	</tag>
+</taglib>

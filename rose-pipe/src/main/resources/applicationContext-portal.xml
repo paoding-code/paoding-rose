@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd
+http://www.springframework.org/schema/context
+http://www.springframework.org/schema/context/spring-context-2.5.xsd
+http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd"
+	default-lazy-init="true">
+
+	<!-- 两个Resolver以及一个Interceptor是Portal框架插入到Rose的接口实现 -->
+
+	<bean id="rose.portalResolver" class="net.paoding.rose.web.portal.impl.PortalResolver">
+		<property name="portalFactory" ref="rose.portalFactory" />
+	</bean>
+	<bean id="rose.pipeResolver" class="net.paoding.rose.web.portal.impl.PipeResolver">
+		<property name="portalFactory" ref="rose.portalFactory" />
+	</bean>
+
+	<bean id="rose.windowResolver" class="net.paoding.rose.web.portal.impl.WindowResolver" />
+
+	<bean id="rose.portalWaitInterceptor" class="net.paoding.rose.web.portal.impl.PortalWaitInterceptor" />
+	<bean id="rose.windowCancelableSupportInterceptor" class="net.paoding.rose.web.portal.impl.WindowCancelableSupportInterceptor" />
+	<bean id="rose.pipeInterceptor" class="net.paoding.rose.web.portal.impl.PipeInterceptor" />
+
+	<bean id="rose.mergeWindowAttributesToModelInterceptor"
+		class="net.paoding.rose.web.portal.impl.MergeWindowAttributesToModelInterceptor" />
+
+	<!--
+		portalBeanPostProcessor读取web.xml的配置，初始化portalExecutor中的参数，以及从applicationContext识别WindowListener对象进行登记添加
+	-->
+
+	<bean id="rose.portalBeanPostProcessor"
+		class="net.paoding.rose.web.portal.impl.PortalBeanPostProcessor" />
+
+	<bean id="rose.portalFactory" class="net.paoding.rose.web.portal.impl.PortalFactoryDelegate">
+		<property name="portalFactoryName" value="rose.laziedPortalFactoryTaget" />
+	</bean>
+
+	<bean id="rose.laziedPortalFactoryTaget" class="net.paoding.rose.web.portal.impl.PortalFactoryImpl">
+		<property name="executorService" ref="rose.portalExecutorService" />
+		<property name="windowListener" ref="rose.windowListeners" />
+	</bean>
+
+	<bean id="rose.portalExecutorService"
+		class="net.paoding.rose.web.portal.impl.ThreadPoolExcutorServiceFactoryBean">
+		<property name="threadPoolTaskExecutor">
+			<bean id="portalExecutor"
+				class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" />
+		</property>
+	</bean>
+
+	<bean id="rose.windowListeners" class="net.paoding.rose.web.portal.WindowListeners">
+		<property name="listeners" ref="rose.windowListenerList" />
+	</bean>
+
+	<util:list id="rose.windowListenerList">
+		<bean class="net.paoding.rose.web.portal.WindowLoggerListener" />
+	</util:list>
+
+
+</beans>
