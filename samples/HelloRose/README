@@ -1,0 +1,18 @@
+
+HOW TO RUN THIS SAMPLE?
+
+* make sure 'gradle' is avaiable in your machine
+  try 'gradle -version'
+  otherwise install the 'gradle' from http://www.gradle.org/
+
+* install paoding-rose's artifacts to your local repository
+  cd to the paoding-rose
+  run 'gradle install'
+
+  NOTE: rose will install its artifacts to the Maven Local Repository, which is ~/.m2/repostory in default
+
+* start web service at 80 port
+  cd to this sample's root directory
+  run 'gradle jettyRun'  
+
+* view http://localhost/HelloRose by your explorer

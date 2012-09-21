@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<toolbox>
+	<tool>
+		<key>date</key>
+		<scope>application</scope>
+		<class>org.apache.velocity.tools.generic.DateTool</class>
+		<parameter name="format" value="yyyy-MM-dd"/>
+	</tool>
+</toolbox>
