@@ -17,6 +17,8 @@ package net.paoding.rose.jade.statement;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -56,21 +58,20 @@ public class JdbcStatement implements Statement {
             }
             if (types.length > 0 && List.class.isAssignableFrom(types[0])) {
                 this.batchUpdate = true;
-				if (returnType != void.class && returnType != int[].class
-						&& returnType != Integer[].class
-						&& returnType != Integer.class) {
-					throw new IllegalArgumentException("error return type:"
-							+ method.getDeclaringClass().getName() + "#"
-							+ method.getName() + "-->" + returnType);
-				}
+                if (returnType != void.class && returnType != int[].class
+                        && returnType != Integer[].class && returnType != Integer.class) {
+                    throw new IllegalArgumentException("error return type:"
+                            + method.getDeclaringClass().getName() + "#" + method.getName() + "-->"
+                            + returnType);
+                }
             } else {
                 this.batchUpdate = false;
-				if (returnType != void.class && returnType != Boolean.class
-						&& !Number.class.isAssignableFrom(returnType)) {
-					throw new IllegalArgumentException("error return type:"
-							+ method.getDeclaringClass().getName() + "#"
-							+ method.getName() + "-->" + returnType);
-				}
+                if (returnType != void.class && returnType != Boolean.class
+                        && !Number.class.isAssignableFrom(returnType)) {
+                    throw new IllegalArgumentException("error return type:"
+                            + method.getDeclaringClass().getName() + "#" + method.getName() + "-->"
+                            + returnType);
+                }
             }
         } else {
             this.batchUpdate = false;
@@ -82,15 +83,15 @@ public class JdbcStatement implements Statement {
         return metaData;
     }
 
-    // TODO: 批量的处理！
     @Override
     public Object execute(Map<String, Object> parameters) {
         if (batchUpdate) {
             //
-            List<?> list = (List<?>) parameters.get(":1");
-            StatementRuntime[] runtimes = new StatementRuntime[list.size()];
-            for (int i = 0; i < list.size(); i++) {
-                Object arg = list.get(i);
+            Iterable<?> iterable = (Iterable<?>) parameters.get(":1");
+            Iterator<?> iterator = (Iterator<?>) iterable.iterator();
+            List<StatementRuntime> runtimes = new LinkedList<StatementRuntime>();
+            while (iterator.hasNext()) {
+                Object arg = iterator.next();
                 HashMap<String, Object> clone = new HashMap<String, Object>(parameters);
                 // 更新执行参数
                 clone.put(":1", arg);
@@ -101,9 +102,9 @@ public class JdbcStatement implements Statement {
                 for (Interpreter interpreter : interpreters) {
                     interpreter.interpret(runtime);
                 }
-                runtimes[i] = runtime;
+                runtimes.add(runtime);
             }
-            return querier.execute(sqlType, runtimes);
+            return querier.execute(sqlType, runtimes.toArray(new StatementRuntime[0]));
         } else {
             StatementRuntime runtime = new StatementRuntimeImpl(metaData, parameters);
             for (Interpreter interpreter : interpreters) {
@@ -111,31 +112,6 @@ public class JdbcStatement implements Statement {
             }
             return querier.execute(sqlType, runtime);
         }
-        //        
-        //        // path、catalog、node
-        //        Class<?> daoClass = metaData.getClassMetaData().getDAOClass();
-        //        DAO dao = daoClass.getAnnotation(DAO.class);
-        //
-        //        // catalog
-        //        if (result.getClientInfo(RoutingConnection.CATALOG) == null) {
-        //            if (dao.catalog() != null && dao.catalog().length() > 0) {
-        //                result.setClientInfo(RoutingConnection.CATALOG, dao.catalog());
-        //            }
-        //        }
-        //
-        //        // node
-        //        if (result.getClientInfo(RoutingConnection.NODE) == null) {
-        //            UseMaster useMaster = daoMethod.getAnnotation(UseMaster.class);
-        //            if (useMaster != null) {
-        //                if (useMaster.value()) {
-        //                    result.setClientInfo(RoutingConnection.NODE, "master");
-        //                } else {
-        //                    result.setClientInfo(RoutingConnection.NODE, "slave");
-        //                }
-        //            }
-        //        }
-        //        //
-        //        return null;
     }
 
 }

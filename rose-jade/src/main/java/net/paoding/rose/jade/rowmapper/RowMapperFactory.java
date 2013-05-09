@@ -40,5 +40,5 @@ public interface RowMapperFactory {
      * 
      * @return 如果无法解析时可返回null
      */
-    public RowMapper getRowMapper(StatementMetaData metaData);
+    public RowMapper<?> getRowMapper(StatementMetaData metaData);
 }

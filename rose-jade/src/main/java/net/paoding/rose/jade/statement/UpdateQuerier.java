@@ -17,6 +17,9 @@ package net.paoding.rose.jade.statement;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import net.paoding.rose.jade.annotation.ReturnGeneratedKeys;
@@ -51,8 +54,7 @@ public class UpdateQuerier implements Querier {
             returnType = ClassUtils.primitiveToWrapper(returnType);
         }
         this.returnType = returnType;
-        if (returnType != void.class && (method
-                        .isAnnotationPresent(ReturnGeneratedKeys.class))) {
+        if (returnType != void.class && (method.isAnnotationPresent(ReturnGeneratedKeys.class))) {
             returnGeneratedKeys = true;
         } else {
             returnGeneratedKeys = false;
@@ -61,8 +63,14 @@ public class UpdateQuerier implements Querier {
 
     @Override
     public Object execute(SQLType sqlType, StatementRuntime... runtimes) {
-        return runtimes.length > 1 ? executeBatch(runtimes)
-                : executeSingle(runtimes[0], returnType);
+        switch (runtimes.length) {
+            case 0:
+                return 0;
+            case 1:
+                return executeSingle(runtimes[0], returnType);
+            default:
+                return executeBatch(runtimes);
+        }
     }
 
     private Object executeSingle(StatementRuntime runtime, Class<?> returnType) {
@@ -109,75 +117,53 @@ public class UpdateQuerier implements Querier {
         }
     }
 
+    //TODO: 支持returnGeneratedKeys
     private Object executeBatch(StatementRuntime... runtimes) {
+        int[] updatedArray = new int[runtimes.length];
+        Map<String, List<StatementRuntime>> batchs = new HashMap<String, List<StatementRuntime>>();
+        for (int i = 0; i < runtimes.length; i++) {
+            StatementRuntime runtime = runtimes[i];
+            List<StatementRuntime> batch = batchs.get(runtime.getSQL());
+            if (batch == null) {
+                batch = new LinkedList<StatementRuntime>();
+                batchs.put(runtime.getSQL(), batch);
+            }
+            runtime.setProperty("_index_at_batch_", i); // 该runtime在batch中的位置
+            batch.add(runtime);
+        }
+        // TODO: 多个真正的batch可以考虑并行执行~待定
+        for (Map.Entry<String, List<StatementRuntime>> batch : batchs.entrySet()) {
+            String sql = batch.getKey();
+            List<StatementRuntime> batchRuntimes = batch.getValue();
+            StatementRuntime runtime = batchRuntimes.get(0);
+            DataAccess dataAccess = dataAccessProvider.getDataAccess(//
+                    runtime.getMetaData(), runtime.getProperties());
+            List<Object[]> argsList = new ArrayList<Object[]>(batchRuntimes.size());
+            for (StatementRuntime batchRuntime : batchRuntimes) {
+                argsList.add(batchRuntime.getArgs());
+            }
+            int[] batchResult = dataAccess.batchUpdate(sql, argsList);
+            if (batchs.size() == 1) {
+                updatedArray = batchResult;
+            } else {
+                int index_at_sub_batch = 0;
+                for (StatementRuntime batchRuntime : batchRuntimes) {
+                    int _index_at_batch_ = batchRuntime.getProperty("_index_at_batch_");
+                    updatedArray[_index_at_batch_] = batchResult[index_at_sub_batch++];
+                }
+            }
+        }
+        return updatedArray;
+    }
+
+    @SuppressWarnings("unused")
+    private Object _executeBatch(StatementRuntime... runtimes) {
         int[] updatedArray = new int[runtimes.length];
         for (int i = 0; i < updatedArray.length; i++) {
             StatementRuntime runtime = runtimes[i];
             updatedArray[i] = (Integer) executeSingle(runtime, Integer.class);
         }
         return updatedArray;
-
-        //        Map<String, Object> parameters = runtime.getParameters();
-        //        List<?> list = (List<?>) parameters.get(":1");
-        //
-        //        int[] updatedArray;
-        //
-        //        if (true) {
-        //            List<Map<String, Object>> parametersList = new ArrayList<Map<String, Object>>(
-        //                    list.size());
-        //            for (Object arg : list) {
-        //
-        //                HashMap<String, Object> clone = new HashMap<String, Object>(parameters);
-        //
-        //                // 更新执行参数
-        //                clone.put(":1", arg);
-        //                if (runtime.getMetaData().getSQLParamAt(0) != null) {
-        //                    clone.put(runtime.getMetaData().getSQLParamAt(0).value(), arg);
-        //                }
-        //                parametersList.add(clone);
-        //            }
-        //            updatedArray = dataAccess.batchUpdate(runtime.getSQL(), parametersList);
-        //        } else {
-        //            // 批量执行查询
-        //            int index = 0;
-        //            updatedArray = new int[list.size()];
-        //            for (Object arg : list) {
-        //
-        //                HashMap<String, Object> clone = new HashMap<String, Object>(parameters);
-        //
-        //                // 更新执行参数
-        //                clone.put(":1", arg);
-        //                if (this.metaData.getSQLParamAt(0) != null) {
-        //                    clone.put(this.metaData.getSQLParamAt(0).value(), arg);
-        //                }
-        //                updatedArray[index] = (Integer) executeSignle(dataAccess, clone, int.class);
-        //
-        //                index++;
-        //            }
-        //        }
-        //        Class<?> batchReturnClazz = metaData.getMethod().getReturnType();
-        //        if (batchReturnClazz == int[].class) {
-        //            return updatedArray;
-        //        }
-        //        if (batchReturnClazz == Integer[].class) {
-        //            Integer[] ret = new Integer[updatedArray.length];
-        //            for (int i = 0; i < ret.length; i++) {
-        //                ret[i] = updatedArray[i];
-        //            }
-        //            return updatedArray;
-        //        }
-        //        if (batchReturnClazz == void.class) {
-        //            return null;
-        //        }
-        //        if (batchReturnClazz == int.class || batchReturnClazz == Integer.class) {
-        //            int updated = 0;
-        //            for (int i = 0; i < updatedArray.length; i++) {
-        //                updated += updatedArray[i];
-        //            }
-        //            return updated;
-        //        }
-        //
-        //        return null;
     }
 
 }

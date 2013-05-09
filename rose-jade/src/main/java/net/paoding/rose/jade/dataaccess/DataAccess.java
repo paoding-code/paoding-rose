@@ -47,7 +47,7 @@ public interface DataAccess {
      * @param rowMapper 行映射器
      * @return
      */
-    List<?> select(String sql, Object[] args, RowMapper rowMapper);
+    <T> List<T> select(String sql, Object[] args, RowMapper<T> rowMapper);
 
     /**
      * 写访问（更新或插入）
@@ -63,8 +63,8 @@ public interface DataAccess {
      * 批量写访问（更新或插入）
      * 
      * @param sql 所要执行的实际SQL语句
-     * @param argsList 伴随该SQL语句的参数
+     * @param batchArgs 伴随该SQL语句的参数
      * @return
      */
-    int[] batchUpdate(String sql, List<Object[]> argsList);
+    int[] batchUpdate(String sql, List<Object[]> batchArgs);
 }

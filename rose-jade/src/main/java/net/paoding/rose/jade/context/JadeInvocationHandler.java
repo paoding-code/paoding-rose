@@ -162,7 +162,7 @@ public class JadeInvocationHandler implements InvocationHandler {
                     SQLType sqlType = smd.getSQLType();
                     Querier querier;
                     if (sqlType == SQLType.READ) {
-                        RowMapper rowMapper = rowMapperFactory.getRowMapper(smd);
+                        RowMapper<?> rowMapper = rowMapperFactory.getRowMapper(smd);
                         querier = new SelectQuerier(dataAccessFactory, smd, rowMapper);
                     } else {
                         querier = new UpdateQuerier(dataAccessFactory, smd);
