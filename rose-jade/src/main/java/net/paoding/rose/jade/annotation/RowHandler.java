@@ -35,6 +35,7 @@ public @interface RowHandler {
      * 
      * @return
      */
+    @SuppressWarnings("rawtypes")
     Class<? extends RowMapper> rowMapper() default ByDefault.class;
 
     /**
@@ -53,7 +54,7 @@ public @interface RowHandler {
      */
     boolean checkProperties() default false;
 
-    class ByDefault implements RowMapper {
+    class ByDefault implements RowMapper<Object> {
 
         @Override
         public Object mapRow(ResultSet rs, int rowNum) throws SQLException {

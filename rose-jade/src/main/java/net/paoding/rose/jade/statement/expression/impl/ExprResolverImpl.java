@@ -26,8 +26,10 @@ public class ExprResolverImpl implements ExprResolver {
     protected static final ConcurrentHashMap<String, Expression> cache = new ConcurrentHashMap<String, Expression>();
 
     // 正则表达式
+    //private static final Pattern PREFIX_PATTERN = Pattern.compile( // NL
+    //"(\\:|\\$)([a-zA-Z0-9_]+)(\\.[a-zA-Z0-9_]+)*");
     private static final Pattern PREFIX_PATTERN = Pattern.compile( // NL
-            "(\\:|\\$)([a-zA-Z0-9_]+)(\\.[a-zA-Z0-9_]+)*");
+    "(\\:|\\$)([a-zA-Z0-9_]+)(\\.[a-zA-Z0-9_]+)*");
 
     private static final Pattern MAP_PATTERN = Pattern.compile( // NL
             "\\[([\\.a-zA-Z0-9_]+)\\]");

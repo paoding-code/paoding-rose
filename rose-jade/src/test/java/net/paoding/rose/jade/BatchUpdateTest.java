@@ -7,9 +7,8 @@ import javax.sql.DataSource;
 
 import net.paoding.rose.jade.annotation.DAO;
 import net.paoding.rose.jade.annotation.SQL;
+import net.paoding.rose.jade.annotation.ShardBy;
 import net.paoding.rose.jade.context.application.JadeFactory;
-import net.paoding.rose.jade.statement.Interpreter;
-import net.paoding.rose.jade.statement.StatementRuntime;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -29,17 +28,20 @@ public class BatchUpdateTest {
         @SQL("create table user (id int, name varchar(200));")
         void createTable();
 
-        @SQL("create table user (id int, name varchar(200));")
-        void createTableAt(int hash);
+        @SQL("create table $user (id int, name varchar(200));")
+        void createTableAt(@ShardBy int hash);
 
         @SQL("insert into user (id, name) values(:1.id, :1.name);")
-        int[] batchInsert(List<User> users);
+        int[] insertIntoOneTable(List<User> users);
+
+        @SQL("insert into $user (id, name) values(:1.id, :1.name);")
+        int[] insertIntoHashTables(@ShardBy("id") List<User> users);
 
         @SQL("select id, name from user order by id")
         List<User> findAll();
 
-        @SQL("select id, name from user order by id")
-        List<User> findAllAt(int hash);
+        @SQL("select id, name from $user order by id")
+        List<User> findAllAt(@ShardBy int hash);
 
         @SQL("delete from user")
         void deleteAll();
@@ -118,7 +120,7 @@ public class BatchUpdateTest {
         List<User> users = new LinkedList<BatchUpdateTest.User>();
         users.addAll(users0);
         users.addAll(users1);
-        dao.batchInsert(users);
+        dao.insertIntoHashTables(users);
         //
         List<User> users0FromDB = dao.findAllAt(0);
         List<User> users1FromDB = dao.findAllAt(1);
@@ -146,7 +148,7 @@ public class BatchUpdateTest {
         user.name = "bad boy";
         users.add(user);
         //
-        dao.batchInsert(users);
+        dao.insertIntoOneTable(users);
         //
         List<User> usersFromDB = dao.findAll();
         Assert.assertEquals(users, usersFromDB);
@@ -160,31 +162,14 @@ public class BatchUpdateTest {
         return dao;
     }
 
+    /**
+     * 散表的一个实现
+     * @return
+     */
     private UserDAO getHashTables() {
         DataSource dataSource = DataSources.createUniqueDataSource();
         JadeFactory factory = new JadeFactory(dataSource);
-        Interpreter[] interpreters = new Interpreter[1];
-        interpreters[0] = new Interpreter() {
-
-            @Override
-            public void interpret(StatementRuntime runtime) {
-                String sql = runtime.getSQL();
-                Object shardBy = runtime.getParameters().get(":1");
-                if (shardBy == null) {
-                    throw new IllegalArgumentException();
-                }
-                String shard;
-                if (shardBy instanceof Number) {
-                    shard = String.valueOf(((Number) shardBy).intValue() % 2);
-                } else if (shardBy instanceof User) {
-                    shard = String.valueOf(((User) shardBy).getId() % 2);
-                } else {
-                    shard = shardBy.toString();
-                }
-                runtime.setSQL(sql.replace("user", "user_" + shard));
-            }
-        };
-        factory.addInterpreter(interpreters);
+        factory.addInterpreter(new ShardInterpreter('$', 2));// Spring下可以配置ShardInterpreter在xml中让jade自动载入
         UserDAO dao = factory.create(UserDAO.class);
         dao.createTableAt(0);
         dao.createTableAt(1);

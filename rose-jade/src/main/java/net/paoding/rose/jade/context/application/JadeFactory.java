@@ -48,7 +48,7 @@ public class JadeFactory {
     private DataAccessFactoryAdapter dataAccessFactory;
 
     private CacheProvider cacheProvider;
-    
+
     // 可选的
     private StatementWrapperProvider statementWrapperProvider;
 
@@ -81,16 +81,16 @@ public class JadeFactory {
     public void setRowMapperFactory(RowMapperFactory rowMapperFactory) {
         this.rowMapperFactory = rowMapperFactory;
     }
-    
+
     public StatementWrapperProvider getStatementWrapperProvider() {
         return statementWrapperProvider;
     }
-    
+
     public void setStatementWrapperProvider(StatementWrapperProvider statementWrapperProvider) {
         this.statementWrapperProvider = statementWrapperProvider;
     }
 
-    public void addInterpreter(Interpreter[] interpreters) {
+    public void addInterpreter(Interpreter... interpreters) {
         for (Interpreter interpreter : interpreters) {
             interpreterFactory.addInterpreter(interpreter);
         }

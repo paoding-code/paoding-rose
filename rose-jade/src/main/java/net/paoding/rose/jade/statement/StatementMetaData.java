@@ -65,6 +65,8 @@ public class StatementMetaData {
      */
     private final int shardByIndex;
 
+    private final ShardBy shardBy;
+
     private final int parameterCount;
 
     // --------------------------------------------
@@ -80,6 +82,7 @@ public class StatementMetaData {
         this.parameterCount = annotations.length;
         this.sqlParams = new SQLParam[annotations.length];
         int shardByIndex = -1;
+        ShardBy shardBy = null;
         for (int index = 0; index < annotations.length; index++) {
             for (Annotation annotation : annotations[index]) {
                 if (annotation instanceof ShardBy) {
@@ -87,12 +90,14 @@ public class StatementMetaData {
                         throw new IllegalArgumentException("duplicated @" + ShardBy.class.getName());
                     }
                     shardByIndex = index;
+                    shardBy = (ShardBy) annotation;
                 } else if (annotation instanceof SQLParam) {
                     this.sqlParams[index] = (SQLParam) annotation;
                 }
             }
         }
         this.shardByIndex = shardByIndex;
+        this.shardBy = shardBy;
     }
 
     public DAOMetaData getDAOMetaData() {
@@ -117,6 +122,10 @@ public class StatementMetaData {
 
     public int getShardByIndex() {
         return shardByIndex;
+    }
+
+    public ShardBy getShardBy() {
+        return shardBy;
     }
 
     public Class<?>[] getGenericReturnTypes() {

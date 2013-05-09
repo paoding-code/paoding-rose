@@ -21,4 +21,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface ShardBy {
+
+    /**
+     * bean参数情况下的属性名
+     * 
+     * @return
+     */
+    String value() default "";
 }

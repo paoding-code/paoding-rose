@@ -148,7 +148,7 @@ public class UpdateQuerier implements Querier {
             } else {
                 int index_at_sub_batch = 0;
                 for (StatementRuntime batchRuntime : batchRuntimes) {
-                    int _index_at_batch_ = batchRuntime.getProperty("_index_at_batch_");
+                    Integer _index_at_batch_ = batchRuntime.getProperty("_index_at_batch_");
                     updatedArray[_index_at_batch_] = batchResult[index_at_sub_batch++];
                 }
             }
