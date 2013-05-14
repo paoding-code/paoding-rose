@@ -7,6 +7,7 @@ subprojects {
     group = "net.paoding"
     version = "1.2-SNAPSHOT"
 
+    sourceCompatibility = 1.6
     [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
     repositories {
@@ -33,8 +34,9 @@ subprojects {
 }
 
 project(':rose') {
+    archivesBaseName = "paoding-rose"
     dependencies {
-        compile project(':rose-context')
+        compile project(':context')
            testCompile "junit:junit:4.7"
            compile "javax.servlet:servlet-api:2.4"
            compile "commons-logging:commons-logging:1.1.1"
@@ -53,7 +55,8 @@ project(':rose') {
     }
 }
 
-project(':rose-context') {
+project(':context') {
+    archivesBaseName = "paoding-rose-context"
     dependencies {
         testCompile "junit:junit:4.7"
         compile "javax.servlet:servlet-api:2.4"
@@ -65,9 +68,10 @@ project(':rose-context') {
     }
 }
 
-project(':rose-jade') {
+project(':jade') {
+    archivesBaseName = "paoding-rose-jade"
     dependencies {
-        compile project(':rose-context')
+        compile project(':context')
         testCompile "junit:junit:4.7"
         compile "javax.servlet:servlet-api:2.4"
         compile "commons-logging:commons-logging:1.1.1"
@@ -80,7 +84,8 @@ project(':rose-jade') {
     }
 }
 
-project(':rose-pipe') {
+project(':pipe') {
+    archivesBaseName = "paoding-rose-pipe"
     dependencies {
         compile project(':rose')
         testCompile "junit:junit:4.7"
