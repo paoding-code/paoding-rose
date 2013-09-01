@@ -1,4 +1,5 @@
 
+
 subprojects {
     apply plugin: 'java'
     apply plugin: 'maven'
@@ -93,5 +94,10 @@ project(':pipe') {
         compile "javax.servlet:jsp-api:2.0"
         compile "com.metaparadigm:json-rpc:1.0"
     }
+}
+
+task copyJars(type: Copy) {
+  from configurations.runtime
+  into 'dist' 
 }
 
