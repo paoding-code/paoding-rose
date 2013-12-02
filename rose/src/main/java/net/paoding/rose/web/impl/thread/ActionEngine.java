@@ -78,7 +78,10 @@ public final class ActionEngine implements Engine {
 
     private final InterceptorDelegate[] interceptors;
 
-    private final ParamValidator[] validators;
+//    private final ParamValidator[] validators;
+
+    //用与每个param多validators支持
+    private final List<List<ParamValidator>> validatorsList;
 
     private final ParamExistenceChecker[] paramExistenceChecker;
 
@@ -93,7 +96,8 @@ public final class ActionEngine implements Engine {
         this.method = method;
         this.interceptors = compileInterceptors();
         this.methodParameterResolver = compileParamResolvers();
-        this.validators = compileValidators();
+//        this.validators = compileValidators();
+        this.validatorsList = compileValidators();
         this.paramExistenceChecker = compileParamExistenceChecker();
         HttpFeatures httpFeatures = method.getAnnotation(HttpFeatures.class);
         if (httpFeatures == null) {
@@ -133,20 +137,21 @@ public final class ActionEngine implements Engine {
     }
 
     @SuppressWarnings("unchecked")
-    private ParamValidator[] compileValidators() {
+    private List<List<ParamValidator>> compileValidators() {
         Class[] parameterTypes = method.getParameterTypes();
         List<ParamValidator> validators = module.getValidators();
-        ParamValidator[] registeredValidators = new ParamValidator[parameterTypes.length];
+        List<List<ParamValidator>> registeredValidatorsList = new ArrayList<List<ParamValidator>>(parameterTypes.length);
         for (int i = 0; i < parameterTypes.length; i++) {
+            ArrayList<ParamValidator> perParamValidators=new ArrayList<ParamValidator>();
             for (ParamValidator validator : validators) {
                 if (validator.supports(methodParameterResolver.getParamMetaDatas()[i])) {
-                    registeredValidators[i] = validator;
-                    break;
+                    perParamValidators.add(validator);
                 }
             }
+            registeredValidatorsList.add(perParamValidators);
         }
         //
-        return registeredValidators;
+        return registeredValidatorsList;
     }
 
     private InterceptorDelegate[] compileInterceptors() {
@@ -410,27 +415,30 @@ public final class ActionEngine implements Engine {
         Object instruction = null;
 
         ParamMetaData[] metaDatas = methodParameterResolver.getParamMetaDatas();
-        // validators
-        for (int i = 0; i < this.validators.length; i++) {
-            if (validators[i] != null && !(methodParameters[i] instanceof Errors)) {
-                Errors errors = inv.getBindingResult(parameterNames[i]);
-                instruction = validators[i].validate(//
-                        metaDatas[i], inv, methodParameters[i], errors);
-                if (logger.isDebugEnabled()) {
-                    logger.debug("do validate [" + validators[i].getClass().getName()
-                            + "] and return '" + instruction + "'");
-                }
-                // 如果返回的instruction不是null、boolean或空串==>杯具：流程到此为止！
-                if (instruction != null) {
-                    if (instruction instanceof Boolean) {
-                        continue;
+        // validators,每个参数可能有多个校验器，一一校验
+        for (int i = 0; i < this.validatorsList.size(); i++) {
+            for (ParamValidator paramValidator:validatorsList.get(i)){
+                if (paramValidator != null && !(methodParameters[i] instanceof Errors)) {
+                    Errors errors = inv.getBindingResult(parameterNames[i]);
+                    instruction = paramValidator.validate(//
+                            metaDatas[i], inv, methodParameters[i], errors);
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("do validate [" + paramValidator.getClass().getName()
+                                + "] and return '" + instruction + "'");
                     }
-                    if (instruction instanceof String && ((String) instruction).length() == 0) {
-                        continue;
+                    // 如果返回的instruction不是null、boolean或空串==>杯具：流程到此为止！
+                    if (instruction != null) {
+                        if (instruction instanceof Boolean) {
+                            continue;
+                        }
+                        if (instruction instanceof String && ((String) instruction).length() == 0) {
+                            continue;
+                        }
+                        return instruction;
                     }
-                    return instruction;
                 }
             }
+
         }
         
         //
