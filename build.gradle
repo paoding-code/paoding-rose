@@ -34,7 +34,7 @@ subprojects {
 }
 
 project(':rose') {
-    archivesBaseName = "paoding-rose"
+    archivesBaseName = "rose"
     dependencies {
         compile project(':context')
            testCompile "junit:junit:4.7"
@@ -56,7 +56,7 @@ project(':rose') {
 }
 
 project(':context') {
-    archivesBaseName = "paoding-rose-context"
+    archivesBaseName = "context"
     dependencies {
         testCompile "junit:junit:4.7"
         compile "javax.servlet:servlet-api:2.4"
@@ -69,7 +69,7 @@ project(':context') {
 }
 
 project(':jade') {
-    archivesBaseName = "paoding-rose-jade"
+    archivesBaseName = "rose-jade"
     dependencies {
         compile project(':context')
         testCompile "junit:junit:4.7"
@@ -85,7 +85,7 @@ project(':jade') {
 }
 
 project(':pipe') {
-    archivesBaseName = "paoding-rose-pipe"
+    archivesBaseName = "rose-pipe"
     dependencies {
         compile project(':rose')
         testCompile "junit:junit:4.7"
