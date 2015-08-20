@@ -15,7 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * 通过集成DAO和JadeFactory，验证 {@link DataSources}的可用
+ * 验证批量更新功能
  * 
  * @author qieqie
  * 

@@ -25,13 +25,21 @@ import java.sql.SQLException;
 
 import org.springframework.jdbc.core.RowMapper;
 
+/**
+ * 
+ * @author 王志亮 [qieqie.wang@gmail.com]
+ *
+ */
 @Target( { ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface RowHandler {
 
     /**
-     * 指定自己设置的 rowMapper 类；rowMapper类应该做到无状态。
+     * 指定自己设置的 rowMapper 类；rowMapper类应该做到无状态。<p>
+     * 
+     * 如果实现的是 {@link StatementRowMapper} ，Jade会调用它的init进行初始化，告知对应的DAO方法
+     * @see StatementRowMapper
      * 
      * @return
      */

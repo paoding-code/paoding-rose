@@ -15,14 +15,15 @@
  */
 package net.paoding.rose.jade.rowmapper;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import net.paoding.rose.jade.annotation.RowHandler;
-import net.paoding.rose.jade.statement.StatementMetaData;
 
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.logging.Log;
@@ -31,6 +32,10 @@ import org.springframework.beans.BeanInstantiationException;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
+
+import net.paoding.rose.jade.annotation.RowHandler;
+import net.paoding.rose.jade.annotation.StatementRowMapper;
+import net.paoding.rose.jade.statement.StatementMetaData;
 
 /**
  * 支持DAO方法返回类型：
@@ -54,6 +59,7 @@ import org.springframework.jdbc.core.SingleColumnRowMapper;
  * @author 王志亮 [qieqie.wang@gmail.com]
  * @author 廖涵 [in355hz@gmail.com]
  */
+@SuppressWarnings({ "rawtypes", "unchecked"})
 public class DefaultRowMapperFactory implements RowMapperFactory {
 
     private static Log logger = LogFactory.getLog(RowMapperFactory.class);
@@ -69,6 +75,10 @@ public class DefaultRowMapperFactory implements RowMapperFactory {
                     RowMapper rowMapper = rowHandler.rowMapper().newInstance();
                     if (logger.isInfoEnabled()) {
                         logger.info("using rowMapper " + rowMapper + " for " + modifier);
+                    }
+                    
+                    if (rowMapper instanceof StatementRowMapper) {
+                        ((StatementRowMapper) rowMapper).init(modifier);
                     }
 
                     return rowMapper;
@@ -93,7 +103,7 @@ public class DefaultRowMapperFactory implements RowMapperFactory {
 
         // 返回单列的查询的(或者返回只有2列的Map类型查询的)
         if (TypeUtils.isColumnType(rowType)) {
-            if (returnClassType == Map.class) {
+            if (Map.class.isAssignableFrom(returnClassType)) {
                 rowMapper = new MapEntryColumnRowMapper(modifier, rowType);
             } else {
                 rowMapper = new SingleColumnRowMapper(rowType);
@@ -122,7 +132,7 @@ public class DefaultRowMapperFactory implements RowMapperFactory {
                 }
             }
             // 如果DAO方法最终返回的是Map，rowMapper要返回Map.Entry对象
-            if (returnClassType == Map.class) {
+            if (Map.class.isAssignableFrom(returnClassType)) {
                 rowMapper = new MapEntryRowMapper(modifier, rowMapper);
             }
         }
@@ -136,12 +146,17 @@ public class DefaultRowMapperFactory implements RowMapperFactory {
 
     // 获得返回的集合元素类型
     private static Class<?> getRowType(StatementMetaData statementMetaData) {
-        Class<?> returnClassType = statementMetaData.getMethod().getReturnType();
-        if (Collection.class.isAssignableFrom(returnClassType)) {
+        Class<?> returnClassType = statementMetaData.getReturnType();
+        if (Collection.class.isAssignableFrom(returnClassType)//
+                || Iterable.class == returnClassType // 
+                || Iterator.class == returnClassType) {
             return getRowTypeFromCollectionType(statementMetaData, returnClassType);
-        } else if (Map.class == returnClassType) {
+        } //
+        else if (Map.class.isAssignableFrom(returnClassType)) {
             return getRowTypeFromMapType(statementMetaData, returnClassType);
-        } else if (returnClassType.isArray() && returnClassType != byte[].class) {
+        } 
+        //
+        else if (returnClassType.isArray() && returnClassType != byte[].class) {
             // 数组类型, 支持多重数组
             return returnClassType.getComponentType();
         }
@@ -166,11 +181,13 @@ public class DefaultRowMapperFactory implements RowMapperFactory {
     private static Class<?> getRowTypeFromCollectionType(StatementMetaData modifier,
             Class<?> returnClassType) {
         Class<?> rowType;
-        // 仅支持  List / Collection / Set
-        if ((returnClassType != List.class) && (returnClassType != Collection.class)
-                && (returnClassType != Set.class)) {
+        // 仅支持  List/ArrayList/LinkedList, CollectionIterable/Iterator, Set/HashSet
+        if ((returnClassType != List.class) && (returnClassType != ArrayList.class) && (returnClassType != LinkedList.class)//
+                && (returnClassType != Collection.class) && (returnClassType != Iterable.class)&& (returnClassType != Iterator.class)
+                && (returnClassType != Set.class) && (returnClassType != HashSet.class)
+                ) {
             throw new IllegalArgumentException("error collection type " + returnClassType.getName()
-                    + "; only support List, Set, Collection");
+                    + "; only support List/ArrayList/LinkedList, CollectionIterable/Iterator, Set/HashSet");
         }
         // 获取集合元素类型
         Class<?>[] genericTypes = modifier.getGenericReturnTypes();

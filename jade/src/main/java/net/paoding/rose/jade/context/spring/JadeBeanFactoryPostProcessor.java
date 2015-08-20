@@ -15,7 +15,6 @@
  */
 package net.paoding.rose.jade.context.spring;
 
-import java.beans.Statement;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
@@ -224,6 +223,10 @@ public class JadeBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
         return rowMapperFactory;
     }
 
+    public void setRowMapperFactory(RowMapperFactory rowMapperFactory) {
+        this.rowMapperFactory = rowMapperFactory;
+    }
+    
     public String getCacheProviderName(ConfigurableListableBeanFactory beanFactory) {
         if (cacheProviderName == null) {
             String[] names = beanFactory.getBeanNamesForType(CacheProvider.class);

@@ -31,6 +31,7 @@ import net.paoding.rose.jade.annotation.ShardBy;
  * 
  * @author 王志亮 [qieqie.wang@gmail.com]
  */
+@SuppressWarnings({"rawtypes"})
 public class StatementMetaData {
 
     /**
@@ -47,11 +48,31 @@ public class StatementMetaData {
      * DAO方法上的原始SQL语句
      */
     private final String sql;
+    
+    /**
+     * DAO方法的“最低返回类型”。<P>
+     * 大部分情况returnType和method.getReturnType是相同的，但对于一些声明为泛型的返回类型，Jade会尽量提取出实际的类型作为returnType<P>
+     * 比如：
+     * <pre>
+     * //@DAO、@SQL注解从略
+     * public interface BaseDAO[E] {
+     * 
+     *     public E getById(Long id);
+     * 
+     * }
+     * public interface UserDAO extends BaseDAO[User] {
+     * 
+     * }
+     * </pre>
+     * 
+     * 此时，UserDAO#getById方法的returnType是User，而非Object;
+     */
+    private final Class returnType;
 
     /**
      * 方法返回参数的范型类型（不支持多级）－从method中获取并缓存
      */
-    private final Class<?>[] genericReturnTypes;
+    private final Class[] genericReturnTypes;
 
     /**
      * {@link SQLParam} 注解数组－从method中获取并缓存
@@ -75,8 +96,9 @@ public class StatementMetaData {
         this.daoMetaData = daoMetaData;
         this.method = method;
         this.sql = method.getAnnotation(SQL.class).value();
-
-        this.genericReturnTypes = GenericUtils.getActualClass(method.getGenericReturnType());
+        
+        this.returnType = GenericUtils.getReturnType(this);
+        this.genericReturnTypes = GenericUtils.getActualClass(method.getGenericReturnType(), daoMetaData);
 
         Annotation[][] annotations = method.getParameterAnnotations();
         this.parameterCount = annotations.length;
@@ -106,6 +128,10 @@ public class StatementMetaData {
 
     public Method getMethod() {
         return method;
+    }
+    
+    public Class<?> getReturnType() {
+        return returnType;
     }
 
     public String getSQL() {
