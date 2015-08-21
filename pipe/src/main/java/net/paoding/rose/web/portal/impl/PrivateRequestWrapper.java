@@ -17,22 +17,19 @@ package net.paoding.rose.web.portal.impl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpSession;
+import javax.servlet.*;
+import javax.servlet.http.*;
 
 /**
  * 私有请求包装器，但不继承于 {@link HttpServletRequestWrapper}
- * 
+ *
  * @author 王志亮 [qieqie.wang@gmail.com]
- * 
+ *
  */
 public class PrivateRequestWrapper implements HttpServletRequest {
 
@@ -353,6 +350,73 @@ public class PrivateRequestWrapper implements HttpServletRequest {
     @Override
     public int getLocalPort() {
         return getRequest().getLocalPort();
+    }
+
+    // 下面的方法，是为了解决portal不能在tomcat7、resin4下面运行的问题
+    // https://code.google.com/p/paoding-rose/issues/detail?id=26
+    //
+    // 问题产生的原因：HttpServletRequest接口在servlet api
+    // 3.0中增加了下面的方法，导致portal在tomcat7、resin4下面发生java.lang.AbstractMethodError异常
+
+    @Override
+    public AsyncContext getAsyncContext() {
+        return getRequest().getAsyncContext();
+    }
+
+    @Override
+    public DispatcherType getDispatcherType() {
+        return getRequest().getDispatcherType();
+    }
+
+    @Override
+    public ServletContext getServletContext() {
+        return getRequest().getServletContext();
+    }
+
+    @Override
+    public boolean isAsyncStarted() {
+        return getRequest().isAsyncStarted();
+    }
+
+    @Override
+    public boolean isAsyncSupported() {
+        return getRequest().isAsyncSupported();
+    }
+
+    @Override
+    public AsyncContext startAsync() throws IllegalStateException {
+        return getRequest().startAsync();
+    }
+
+    @Override
+    public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse)
+            throws IllegalStateException {
+        return getRequest().startAsync(servletRequest, servletResponse);
+    }
+
+    @Override
+    public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
+        return getRequest().authenticate(response);
+    }
+
+    @Override
+    public Part getPart(String name) throws IOException, ServletException {
+        return getRequest().getPart(name);
+    }
+
+    @Override
+    public Collection<Part> getParts() throws IOException, ServletException {
+        return getRequest().getParts();
+    }
+
+    @Override
+    public void login(String username, String password) throws ServletException {
+        getRequest().login(username, password);
+    }
+
+    @Override
+    public void logout() throws ServletException {
+        getRequest().logout();
     }
 
 }
