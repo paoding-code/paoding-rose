@@ -6,6 +6,8 @@
 *.class
 *.swp
 *.bak
+.idea
+*.iml
 bin
 build
 target

@@ -1,0 +1,7 @@
+Welcome to $name. 
+<p>
+Here is its index $index.
+
+<p>
+<a href="/hello/world/list">Back</a><br>
+<a href="/">Home</a>

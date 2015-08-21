@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<web-app>
+    <display-name>HelloRose</display-name>
+    <filter>
+        <filter-name>rose</filter-name>
+        <filter-class>net.paoding.rose.RoseFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>rose</filter-name>
+        <url-pattern>/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+</web-app>
