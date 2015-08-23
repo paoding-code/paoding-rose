@@ -6,18 +6,39 @@
     <groupId>net.paoding</groupId>
     <artifactId>paoding-rose-parent</artifactId>
     <packaging>pom</packaging>
-    <version>2.0-SNAPSHOT</version>
+    <version>2.0</version>
     <name>paoding-rose-parent</name>
+
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
+
+    <distributionManagement>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+        </repository>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <!-- 开发人员 -->
     <developers>
         <developer>
-            <name>王志亮</name>
+            <name>王志亮 Qieqie</name>
             <email>qieqie.wang@gmail.com</email>
         </developer>
         <developer>
-            <name>廖涵</name>
+            <name>廖涵 han.liao</name>
             <email>in355hz@gmail.com</email>
+        </developer>
+        <developer>
+            <name>陈臻 54chen</name>
+            <email>54chen@gmail.com</email>
         </developer>
     </developers>
 
@@ -236,6 +257,21 @@
                     <aggregate>true</aggregate>
                 </configuration>
                 <version>2.10.3</version>
+            </plugin>
+
+            <!--maven-gpg-plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
 

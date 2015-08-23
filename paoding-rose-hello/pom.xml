@@ -5,14 +5,30 @@
     <groupId>net.paoding</groupId>
     <artifactId>paoding-rose-hello</artifactId>
     <packaging>war</packaging>
-    <version>2.0-SNAPSHOT</version>
+    <version>2.0</version>
     <name>paoding-rose-hello</name>
+
+    <!-- 开发人员说明 -->
+    <developers>
+        <developer>
+            <name>王志亮 Qieqie</name>
+            <email>qieqie.wang@gmail.com</email>
+        </developer>
+        <developer>
+            <name>廖涵 han.liao</name>
+            <email>in355hz@gmail.com</email>
+        </developer>
+        <developer>
+            <name>陈臻 54chen</name>
+            <email>54chen@gmail.com</email>
+        </developer>
+    </developers>
 
     <dependencies>
         <dependency>
             <groupId>net.paoding</groupId>
             <artifactId>paoding-rose</artifactId>
-            <version>2.0-SNAPSHOT</version>
+            <version>2.0</version>
         </dependency>
     </dependencies>
 
