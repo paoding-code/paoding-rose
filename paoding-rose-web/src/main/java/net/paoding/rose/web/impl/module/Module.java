@@ -45,7 +45,7 @@ public interface Module {
     /**
      * 该模块相关资源路径(即控制器“类文件”存在本地计算机的什么目录下，包括package名所表示的路径)
      * 
-     * @return
+     * 
      */
     public URL getUrl();
 
@@ -54,7 +54,7 @@ public interface Module {
      * 
      * @see Mapping#getPath()
      * 
-     * @return
+     * 
      */
     public String getMappingPath();
 
@@ -63,7 +63,7 @@ public interface Module {
      * <p>
      * 模块之间的上下级和URI的分层上下级没有必然联系，虽然大多数应该有一致的表现。
      * 
-     * @return
+     * 
      */
     public Module getParent();
 
@@ -73,7 +73,7 @@ public interface Module {
      * 如果是最顶级模块其地址是一个长度为0的串。<br>
      * 下级模块的地址是上级模块的地址 + "/" + 本模块所在package的简单包名(package最后一级)。
      * 
-     * @return
+     * 
      */
     public String getRelativePath();
 
@@ -82,42 +82,42 @@ public interface Module {
      * <p>
      * 如果模块具有上级模块，这2个模块的ApplicationContext也会体现这个上下级关系
      * 
-     * @return
+     * 
      */
     public WebApplicationContext getApplicationContext();
 
     /**
      * 本模块使用的有效外设参数解析器对象
      * 
-     * @return
+     * 
      */
     public List<ParamResolver> getCustomerResolvers();
 
     /**
      * 本模块使用的验证器
      * 
-     * @return
+     * 
      */
     public List<ParamValidator> getValidators();
 
     /**
      * 本模块使用的有效拦截器对象
      * 
-     * @return
+     * 
      */
     public List<InterceptorDelegate> getInterceptors();
 
     /**
      * 本模块有效的控制器对象
      * 
-     * @return
+     * 
      */
     public List<ControllerRef> getControllers();
 
     /**
      * 本模块使用的错误处理器
      * 
-     * @return
+     * 
      */
     public ControllerErrorHandler getErrorHandler();
 

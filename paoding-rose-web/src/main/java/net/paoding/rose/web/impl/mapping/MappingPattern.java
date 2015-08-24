@@ -29,7 +29,6 @@ public interface MappingPattern {
      * 返回匹配结果,返回空表示不能匹配
      * 
      * @param path
-     * @return
      */
     java.util.regex.MatchResult match(CharSequence path);
 }

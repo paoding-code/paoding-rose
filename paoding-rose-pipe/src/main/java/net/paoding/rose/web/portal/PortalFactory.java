@@ -39,7 +39,6 @@ public interface PortalFactory {
     /**
      * 创建给定请求的 {@link Pipe} 实例
      * 
-     * @param portal
      * @return
      * @throws IOException
      */

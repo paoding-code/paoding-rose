@@ -101,7 +101,8 @@ public interface Window {
     /**
      * 返回创建该窗口时所设置的名字，这个窗口对象将以这个名字设置在所在portal的model中
      * 
-     * @see ServerPortal#addWindow(String, String)
+     * @see Portal#addWindow(String, String)
+     * @see Pipe#addWindow(String, String)
      * @return
      */
     public String getName();
@@ -109,7 +110,8 @@ public interface Window {
     /**
      * 返回创建该窗口时所设置的地址，这个窗口将代表这个地址的资源/动作。
      * 
-     * @see ServerPortal#addWindow(String, String)
+     * @see Portal#addWindow(String, String)
+     * @see Pipe#addWindow(String, String)
      * @return
      */
     public String getPath();

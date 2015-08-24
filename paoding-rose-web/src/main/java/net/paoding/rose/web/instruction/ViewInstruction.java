@@ -95,7 +95,6 @@ public class ViewInstruction extends AbstractInstruction {
      * @param viewName 大多数情况viewName应该是一个普通字符串 (e.g:
      *        index)，也可能是index.jsp带后缀的字符串，
      *        可能是一个带有/开头的绝对路径地址，可能是类似template/default这样的地址
-     * @return
      * @throws IOException
      */
     private String getViewPath(InvocationBean inv, String viewName) throws IOException {
@@ -153,7 +152,6 @@ public class ViewInstruction extends AbstractInstruction {
      * @param inv
      * @param viewPathCache
      * @param viewName
-     * @return
      * @throws IOException
      */
     private String getViewPathFromCache(InvocationBean inv, ViewPathCache viewPathCache,
@@ -233,7 +231,6 @@ public class ViewInstruction extends AbstractInstruction {
      * 
      * @param tempHome
      * @param subDirPath
-     * @return
      */
     private File searchDirectory(File tempHome, String subDirPath) {
         // 
@@ -270,7 +267,6 @@ public class ViewInstruction extends AbstractInstruction {
      * @param fileNameToFind
      * @param directoryFile
      * @param ignoreCase
-     * @return
      */
     private String searchViewFile(File directoryFile, final String fileNameToFind,
             final boolean ignoreCase) {
@@ -316,7 +312,6 @@ public class ViewInstruction extends AbstractInstruction {
     /**
      * 注册一个 {@link ViewDispatcher}定义到上下文中，以被这个类的所有实例使用
      * 
-     * @return
      */
     protected ViewDispatcher registerViewDispatcher(WebApplicationContext applicationContext) {
         // 并发下，重复注册虽然不会错误，但没有必要重复注册

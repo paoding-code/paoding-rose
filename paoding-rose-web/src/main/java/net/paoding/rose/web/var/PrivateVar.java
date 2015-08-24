@@ -43,7 +43,7 @@ public final class PrivateVar {
      * <p>
      * 所谓根Spring上下文环境的对象都可以应用到各个module中.
      * 
-     * @return
+     * 
      */
     public static WebApplicationContext getRootWebApplicationContext(ServletContext servletContext) {
         return WebApplicationContextUtils.getWebApplicationContext(servletContext);
@@ -65,7 +65,7 @@ public final class PrivateVar {
     /**
      * 
      * @param name
-     * @return
+     * 
      */
     public static String getProperty(ServletContext servletContext, String name, String def) {
         if (roseProperties == null) {

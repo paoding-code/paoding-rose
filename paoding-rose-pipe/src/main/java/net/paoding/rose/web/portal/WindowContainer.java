@@ -82,7 +82,6 @@ public interface WindowContainer {
      * <p>
      * 等价于您在控制器方法参数声明的Invocation inv。
      * 
-     * @return
      */
     public Invocation getInvocation();
 
@@ -95,17 +94,15 @@ public interface WindowContainer {
 
     /**
      * 返回创建此对象时的 {@link HttpServletRequest}对象，等价于
-     * {@link Portal#getInvocation()#getRequest()}
+     * {@link #getInvocation()#getRequest()}
      * 
-     * @return
      */
     public HttpServletRequest getRequest();
 
     /**
      * 返回创建此对象时的 {@link HttpServletResponse}对象，等价于
-     * {@link Portal#getInvocation()#getResponse()}
+     * {@link #getInvocation()#getResponse()}
      * 
-     * @return
      */
     public HttpServletResponse getResponse();
 
@@ -124,7 +121,6 @@ public interface WindowContainer {
     /**
      * 返回设置的窗口渲染器
      * 
-     * @return
      */
     public WindowRender getWindowRender();
 
@@ -155,7 +151,6 @@ public interface WindowContainer {
     /**
      * 返回设置的超时时间
      * 
-     * @return
      */
     public long getTimeout();
 
@@ -183,7 +178,6 @@ public interface WindowContainer {
      *        port下的根路径)<br>
      *        如果地址不一'/'开始表示相对当前的请求的URI地址<br>
      *        这个地址<strong>*不能*</strong>是其他远程地址，比如http://host:port/somepath
-     * @return
      */
     public Window addWindow(String name, String windowPath);
 
@@ -205,7 +199,6 @@ public interface WindowContainer {
      *        如果地址不一'/'开始表示相对当前的请求的URI地址<br>
      *        这个地址<strong>*不能*</strong>是其他远程地址，比如http://host:port/somepath
      * @param attributes 在window未执行之前设置给这个window的属性，可以为null
-     * @return
      */
     public Window addWindow(String name, String windowPath, Map<String, Object> attributes);
 
@@ -227,7 +220,6 @@ public interface WindowContainer {
      *        如果地址不一'/'开始表示相对当前的请求的URI地址<br>
      *        这个地址<strong>*不能*</strong>是其他远程地址，比如http://host:port/somepath
      * @param callback 在window创建后未被执行前的一些回调
-     * @return
      */
     public Window addWindow(String name, String windowPath, WindowCallback callback);
 
@@ -238,7 +230,6 @@ public interface WindowContainer {
      * <p>
      * 请不要对返回的列表做任何增删改操作，如果您需要，请clone出一份新的出来.
      * 
-     * @return
      */
     public List<Window> getWindows();
 

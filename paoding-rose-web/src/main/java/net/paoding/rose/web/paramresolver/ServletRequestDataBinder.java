@@ -18,6 +18,7 @@ package net.paoding.rose.web.paramresolver;
 import java.util.Date;
 
 import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 
 import net.paoding.rose.web.paramresolver.ResolverFactoryImpl.DateEditor;
 
@@ -69,7 +70,7 @@ import org.springframework.web.util.WebUtils;
  * @see #setAllowedFields
  * @see #setRequiredFields
  * @see #setFieldMarkerPrefix
- * @see org.springframework.web.servlet.mvc.BaseCommandController#initBinder
+ * @see org.springframework.web.servlet.mvc.BaseCommandController#initBinder(HttpServletRequest request, ServletRequestDataBinder binder)
  */
 public class ServletRequestDataBinder extends WebDataBinder {
 

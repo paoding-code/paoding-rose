@@ -29,35 +29,35 @@ public interface ParamMetaData {
     /**
      * 所在的控制器类
      * 
-     * @return
+     * 
      */
     public Class<?> getControllerClass();
 
     /**
      * 所在的方法
      * 
-     * @return
+     * 
      */
     public Method getMethod();
 
     /**
      * 该参数在方法所有参数中的位置,从0开始
      * 
-     * @return
+     * 
      */
     public int getIndex();
 
     /**
      * 该参数的声明类型
      * 
-     * @return
+     * 
      */
     public Class<?> getParamType();
 
     /**
      * 该参数的名字
      * 
-     * @return
+     * 
      */
     public String getParamName();
 
@@ -65,14 +65,14 @@ public interface ParamMetaData {
      * 增加一个别名
      * 
      * @param aliasParamName
-     * @return
+     * 
      */
     public void addAliasParamName(String aliasParamName);
 
     /**
      * 返回所有别名，数组元素如果为null，表示无效
      * 
-     * @return
+     * 
      */
     public String[] getParamNames();
 

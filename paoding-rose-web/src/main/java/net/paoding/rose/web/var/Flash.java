@@ -33,7 +33,7 @@ public interface Flash {
      * 获取上一次请求传递过来的信息，如果没有返回null
      * 
      * @param name
-     * @return
+     * 
      */
     public String get(String name);
 
@@ -41,21 +41,21 @@ public interface Flash {
      * 是否传递了所给名字的信息?
      * 
      * @param name
-     * @return
+     * 
      */
     public boolean contains(String name);
 
     /**
      * 获取上一次请求传递过来的所有信息的名字，如果没有，返回的size为0
      * 
-     * @return
+     * 
      */
     public Collection<String> getMessageNames();
 
     /**
      * 获取上一次请求传递过来的所有信息，如果没有，返回的size为0
      * 
-     * @return
+     * 
      */
     public Map<String, String> getMessages();
 
@@ -64,21 +64,21 @@ public interface Flash {
      * 
      * @param name
      * @param flashMessage
-     * @return
+     * 
      */
     public Flash add(String name, String flashMessage);
 
     /**
      * 获取已经add进来的信息的名字
      * 
-     * @return
+     * 
      */
     public Collection<String> getNewMessageNames();
 
     /**
      * 获取已经add进来的信息
      * 
-     * @return
+     * 
      */
     public Map<String, String> getNewMessages();
 }

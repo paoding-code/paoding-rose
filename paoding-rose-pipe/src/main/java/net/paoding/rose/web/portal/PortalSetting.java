@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 在portal主控制器方法上标注 {@link PortalSetting}设置有关 {@link ServerPortal} 的参数
+ * 在portal主控制器方法上标注 {@link PortalSetting}设置有关 {@link Portal}、 {@link Pipe} 的参数
  * 
  * @author 王志亮 [qieqie.wang@gmail.com]
  * 
