@@ -52,7 +52,7 @@ public class JdbcStatement implements Statement {
         if (sqlType == SQLType.WRITE) {
             Method method = statementMetaData.getMethod();
             Class<?>[] types = method.getParameterTypes();
-            Class<?> returnType = method.getReturnType();
+            Class<?> returnType = statementMetaData.getReturnType();
             if (returnType.isPrimitive()) {
                 returnType = ClassUtils.primitiveToWrapper(returnType);
             }

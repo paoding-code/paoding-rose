@@ -31,7 +31,7 @@ import net.paoding.rose.jade.annotation.ShardBy;
  * 
  * @author 王志亮 [qieqie.wang@gmail.com]
  */
-@SuppressWarnings({"rawtypes"})
+@SuppressWarnings({ "rawtypes" })
 public class StatementMetaData {
 
     /**
@@ -45,14 +45,24 @@ public class StatementMetaData {
     private final Method method;
 
     /**
-     * DAO方法上的原始SQL语句
+     * DAO方法上的原始SQL语句，如果没有执行SQL语句，则根据方法签名生成相应的串辅助debug
      */
     private final String sql;
     
     /**
-     * DAO方法的“最低返回类型”。<P>
-     * 大部分情况returnType和method.getReturnType是相同的，但对于一些声明为泛型的返回类型，Jade会尽量提取出实际的类型作为returnType<P>
+     * SQL类型（查询类型或者更新类型）：默认由方法名和SQL语句判断，除非强制指定。
+     * @see SQLType
+     */
+    private final SQLType sqlType;
+
+    /**
+     * DAO方法的“最低返回类型”。
+     * <P>
+     * 大部分情况returnType和method.getReturnType是相同的，但对于一些声明为泛型的返回类型，
+     * Jade会尽量提取出实际的类型作为returnType
+     * <P>
      * 比如：
+     * 
      * <pre>
      * //@DAO、@SQL注解从略
      * public interface BaseDAO[E] {
@@ -95,8 +105,33 @@ public class StatementMetaData {
     public StatementMetaData(DAOMetaData daoMetaData, Method method) {
         this.daoMetaData = daoMetaData;
         this.method = method;
-        this.sql = method.getAnnotation(SQL.class).value();
-        
+        SQL sqlAnnotation = method.getAnnotation(SQL.class);
+        if (sqlAnnotation == null) {
+            sqlAnnotation = new SQL() {
+
+                @Override
+                public Class<? extends Annotation> annotationType() {
+                    return SQL.class;
+                }
+
+                @Override
+                public String value() {
+                    String toString = StatementMetaData.this.method.toString();
+                    int paramStart = toString.indexOf("(");
+                    int methodNameStart = toString.lastIndexOf('.', paramStart) + 1;
+                    return toString.substring(methodNameStart) + "@" //
+                            + StatementMetaData.this.method.getDeclaringClass().getName();
+                }
+
+                @Override
+                public SQLType type() {
+                    return SQLType.AUTO_DETECT;
+                }
+            };
+        }
+        this.sql = sqlAnnotation.value();
+        this.sqlType = resolveSQLType(sqlAnnotation);
+
         this.returnType = GenericUtils.getReturnType(this);
         this.genericReturnTypes = GenericUtils.getActualClass(method.getGenericReturnType(), daoMetaData);
 
@@ -129,7 +164,7 @@ public class StatementMetaData {
     public Method getMethod() {
         return method;
     }
-    
+
     public Class<?> getReturnType() {
         return returnType;
     }
@@ -161,6 +196,28 @@ public class StatementMetaData {
     public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
         return method.getAnnotation(annotationClass);
     }
+    
+    public SQLType getSQLType() {
+        return sqlType;
+    }
+    
+    protected SQLType resolveSQLType(SQL sql) {
+        SQLType sqlType = sql.type();
+        if (sqlType == SQLType.AUTO_DETECT) {
+            for (int i = 0; i < SELECT_PATTERNS.length; i++) {
+                // 用正则表达式匹配 SELECT 语句
+                if (SELECT_PATTERNS[i].matcher(getSQL()).find() //
+                        || SELECT_PATTERNS[i].matcher(getMethod().getName()).find()) {
+                    sqlType = SQLType.READ;
+                    break;
+                }
+            }
+            if (sqlType == SQLType.AUTO_DETECT) {
+                sqlType = SQLType.WRITE;
+            }
+        }
+        return sqlType;
+    }
 
     @Override
     public boolean equals(Object obj) {
@@ -183,32 +240,14 @@ public class StatementMetaData {
 
     private static Pattern[] SELECT_PATTERNS = new Pattern[] {
             //
-            Pattern.compile("^\\s*SELECT\\s+", Pattern.CASE_INSENSITIVE), //
-            Pattern.compile("^\\s*SHOW\\s+", Pattern.CASE_INSENSITIVE), //
-            Pattern.compile("^\\s*DESC\\s+", Pattern.CASE_INSENSITIVE), //
-            Pattern.compile("^\\s*DESCRIBE\\s+", Pattern.CASE_INSENSITIVE), //
+            Pattern.compile("^\\s*SELECT.*", Pattern.CASE_INSENSITIVE), //
+            Pattern.compile("^\\s*GET.*", Pattern.CASE_INSENSITIVE), //
+            Pattern.compile("^\\s*FIND.*", Pattern.CASE_INSENSITIVE), //
+            Pattern.compile("^\\s*READ.*", Pattern.CASE_INSENSITIVE), //
+            Pattern.compile("^\\s*QUERY.*", Pattern.CASE_INSENSITIVE), //
+            Pattern.compile("^\\s*SHOW.*", Pattern.CASE_INSENSITIVE), //
+            Pattern.compile("^\\s*DESC.*", Pattern.CASE_INSENSITIVE), //
+            Pattern.compile("^\\s*DESCRIBE.*", Pattern.CASE_INSENSITIVE), //
     };
 
-    private SQLType sqlType;
-
-    public SQLType getSQLType() {
-        if (sqlType == null) {
-            SQL sql = method.getAnnotation(SQL.class);
-            SQLType sqlType = sql.type();
-            if (sqlType == SQLType.AUTO_DETECT) {
-                for (int i = 0; i < SELECT_PATTERNS.length; i++) {
-                    // 用正则表达式匹配  SELECT 语句
-                    if (SELECT_PATTERNS[i].matcher(getSQL()).find()) {
-                        sqlType = SQLType.READ;
-                        break;
-                    }
-                }
-                if (sqlType == SQLType.AUTO_DETECT) {
-                    sqlType = SQLType.WRITE;
-                }
-            }
-            this.sqlType = sqlType;
-        }
-        return sqlType;
-    }
 }
