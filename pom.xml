@@ -26,9 +26,9 @@
     </distributionManagement>
 
     <scm>  
-        <connection>scm:git:git@github.com:Qieqie/paoding-rose.git</connection>  
-        <developerConnection>scm:git:git@github.com:Qieqie/paoding-rose.git</developerConnection>
-        <url>git@github.com:Qieqie/paoding-rose.git</url>
+        <connection>scm:git:git@github.com:paoding-code/paoding-rose.git</connection>  
+        <developerConnection>scm:git:git@github.com:paoding-code/paoding-rose.git</developerConnection>
+        <url>git@github.com:paoding-code/paoding-rose.git</url>
     </scm> 
 
     <!-- 开发人员 -->
