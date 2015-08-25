@@ -49,12 +49,12 @@ public class UpdateQuerier implements Querier {
         this.dataAccessProvider = dataAccessProvider;
         Method method = metaData.getMethod();
         // 转换基本类型
-        Class<?> returnType = method.getReturnType();
+        Class<?> returnType = metaData.getReturnType();
         if (returnType.isPrimitive()) {
             returnType = ClassUtils.primitiveToWrapper(returnType);
         }
         this.returnType = returnType;
-        if (returnType != void.class && (method.isAnnotationPresent(ReturnGeneratedKeys.class))) {
+        if (Number.class.isAssignableFrom(returnType) && (method.isAnnotationPresent(ReturnGeneratedKeys.class))) {
             returnGeneratedKeys = true;
         } else {
             returnGeneratedKeys = false;
@@ -96,7 +96,6 @@ public class UpdateQuerier implements Querier {
         if (returnType == result.getClass()) {
             return result;
         }
-
         // 将结果转成方法的返回类型
         if (returnType == Integer.class) {
             return result.intValue();
@@ -112,8 +111,8 @@ public class UpdateQuerier implements Querier {
             return result;
         } else {
             throw new DataRetrievalFailureException(
-                    "The generated key is not of a supported numeric type. " + "Unable to cast ["
-                            + result.getClass().getName() + "] to [" + Number.class.getName() + "]");
+                    "The generated key is not of a supported numeric type. Unable to cast ["
+                            + returnType.getName() + "] to [" + Number.class.getName() + "]");
         }
     }
 
