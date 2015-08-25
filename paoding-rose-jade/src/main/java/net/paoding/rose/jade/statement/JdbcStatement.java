@@ -22,9 +22,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import net.paoding.rose.jade.annotation.ReturnGeneratedKeys;
 import net.paoding.rose.jade.annotation.SQLType;
 
 import org.apache.commons.lang.ClassUtils;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 
 /**
  * 
@@ -44,7 +46,7 @@ public class JdbcStatement implements Statement {
     private final SQLType sqlType;
 
     public JdbcStatement(StatementMetaData statementMetaData, SQLType sqlType,
-            Interpreter[] interpreters, Querier querier) {
+                         Interpreter[] interpreters, Querier querier) {
         this.metaData = statementMetaData;
         this.interpreters = (interpreters == null) ? new Interpreter[0] : interpreters;
         this.querier = querier;
@@ -58,19 +60,28 @@ public class JdbcStatement implements Statement {
             }
             if (types.length > 0 && List.class.isAssignableFrom(types[0])) {
                 this.batchUpdate = true;
-                if (returnType != void.class && returnType != int[].class
-                        && returnType != Integer[].class && returnType != Integer.class) {
-                    throw new IllegalArgumentException("error return type:"
-                            + method.getDeclaringClass().getName() + "#" + method.getName() + "-->"
-                            + returnType);
+                if (metaData.getMethod().getAnnotation(ReturnGeneratedKeys.class) != null) {
+                    throw new InvalidDataAccessApiUsageException(
+                        "batch update method cannot return generated keys: " + method);
+                }
+                if (returnType != void.class && returnType != int[].class //
+                    && returnType != Integer.class && returnType != Boolean.class) {
+                    throw new InvalidDataAccessApiUsageException(
+                        "error return type, only support type of {void,boolean,int,int[]}: "
+                                                                 + method);
                 }
             } else {
                 this.batchUpdate = false;
-                if (returnType != void.class && returnType != Boolean.class
-                        && !Number.class.isAssignableFrom(returnType)) {
-                    throw new IllegalArgumentException("error return type:"
-                            + method.getDeclaringClass().getName() + "#" + method.getName() + "-->"
-                            + returnType);
+                if (metaData.getMethod().getAnnotation(ReturnGeneratedKeys.class) != null) {
+                    if (!Number.class.isAssignableFrom(returnType)) {
+                        throw new InvalidDataAccessApiUsageException(
+                            "error return type, only support numberic type for method with @ReturnGeneratedKeys:"
+                                                                     + method);
+                    }
+                } else if (returnType != void.class && returnType != Boolean.class
+                           && returnType != Integer.class) {
+                    throw new InvalidDataAccessApiUsageException(
+                        "error return type, only support type of {void,boolean,int}:" + method);
                 }
             }
         } else {

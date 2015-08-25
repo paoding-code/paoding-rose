@@ -81,8 +81,13 @@ public class StatementMetaData {
 
     /**
      * 方法返回参数的范型类型（不支持多级）－从method中获取并缓存
+     * 
+     * <pre>
+     * 示例：
+     * （1） List<E>中的E
+     * （2） Map<K, V>中的K、V
      */
-    private final Class[] genericReturnTypes;
+    private final Class[] parameterTypesOfReturnType;
 
     /**
      * {@link SQLParam} 注解数组－从method中获取并缓存
@@ -132,8 +137,8 @@ public class StatementMetaData {
         this.sql = sqlAnnotation.value();
         this.sqlType = resolveSQLType(sqlAnnotation);
 
-        this.returnType = GenericUtils.getReturnType(this);
-        this.genericReturnTypes = GenericUtils.getActualClass(method.getGenericReturnType(), daoMetaData);
+        this.returnType = GenericUtils.resolveTypeVariable(daoMetaData.getDAOClass(), method.getGenericReturnType());
+        this.parameterTypesOfReturnType = GenericUtils.resolveTypeParameters(daoMetaData.getDAOClass(), method.getGenericReturnType());
 
         Annotation[][] annotations = method.getParameterAnnotations();
         this.parameterCount = annotations.length;
@@ -190,7 +195,7 @@ public class StatementMetaData {
     }
 
     public Class<?>[] getGenericReturnTypes() {
-        return genericReturnTypes;
+        return parameterTypesOfReturnType;
     }
 
     public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {

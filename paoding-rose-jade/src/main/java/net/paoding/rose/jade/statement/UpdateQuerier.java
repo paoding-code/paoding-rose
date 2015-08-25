@@ -22,15 +22,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.ClassUtils;
+import org.springframework.dao.DataRetrievalFailureException;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+
 import net.paoding.rose.jade.annotation.ReturnGeneratedKeys;
 import net.paoding.rose.jade.annotation.SQLType;
 import net.paoding.rose.jade.dataaccess.DataAccess;
 import net.paoding.rose.jade.dataaccess.DataAccessFactory;
-
-import org.apache.commons.lang.ClassUtils;
-import org.springframework.dao.DataRetrievalFailureException;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 
 /**
  * 
@@ -54,7 +55,7 @@ public class UpdateQuerier implements Querier {
             returnType = ClassUtils.primitiveToWrapper(returnType);
         }
         this.returnType = returnType;
-        if (Number.class.isAssignableFrom(returnType) && (method.isAnnotationPresent(ReturnGeneratedKeys.class))) {
+        if (method.isAnnotationPresent(ReturnGeneratedKeys.class)) {
             returnGeneratedKeys = true;
         } else {
             returnGeneratedKeys = false;
@@ -64,19 +65,19 @@ public class UpdateQuerier implements Querier {
     @Override
     public Object execute(SQLType sqlType, StatementRuntime... runtimes) {
         switch (runtimes.length) {
+            case 1:
+                return executeSingle(runtimes[0]);
             case 0:
                 return 0;
-            case 1:
-                return executeSingle(runtimes[0], returnType);
             default:
                 return executeBatch(runtimes);
         }
     }
 
-    private Object executeSingle(StatementRuntime runtime, Class<?> returnType) {
+    private Object executeSingle(StatementRuntime runtime) {
         Number result;
         DataAccess dataAccess = dataAccessProvider.getDataAccess(//
-                runtime.getMetaData(), runtime.getProperties());
+            runtime.getMetaData(), runtime.getProperties());
         if (returnGeneratedKeys) {
             ArrayList<Map<String, Object>> keys = new ArrayList<Map<String, Object>>(1);
             KeyHolder generatedKeyHolder = new GeneratedKeyHolder(keys);
@@ -107,16 +108,15 @@ public class UpdateQuerier implements Querier {
             return result.doubleValue();
         } else if (returnType == Float.class) {
             return result.floatValue();
-        } else if (Number.class.isAssignableFrom(returnType)) {
+        } else if (returnType == Number.class) {
             return result;
         } else {
             throw new DataRetrievalFailureException(
-                    "The generated key is not of a supported numeric type. Unable to cast ["
-                            + returnType.getName() + "] to [" + Number.class.getName() + "]");
+                "The generated key is not of a supported numeric type: " + returnType.getName());
         }
     }
 
-    //TODO: 支持returnGeneratedKeys
+    //TODO: 支持returnGeneratedKeys (因JdbcTemplate不支持且必要性存疑，暂不实现）
     private Object executeBatch(StatementRuntime... runtimes) {
         int[] updatedArray = new int[runtimes.length];
         Map<String, List<StatementRuntime>> batchs = new HashMap<String, List<StatementRuntime>>();
@@ -136,7 +136,7 @@ public class UpdateQuerier implements Querier {
             List<StatementRuntime> batchRuntimes = batch.getValue();
             StatementRuntime runtime = batchRuntimes.get(0);
             DataAccess dataAccess = dataAccessProvider.getDataAccess(//
-                    runtime.getMetaData(), runtime.getProperties());
+                runtime.getMetaData(), runtime.getProperties());
             List<Object[]> argsList = new ArrayList<Object[]>(batchRuntimes.size());
             for (StatementRuntime batchRuntime : batchRuntimes) {
                 argsList.add(batchRuntime.getArgs());
@@ -152,7 +152,21 @@ public class UpdateQuerier implements Querier {
                 }
             }
         }
-        return updatedArray;
+        if (returnType == void.class) {
+            return null;
+        }
+        if (returnType == int[].class) {
+            return updatedArray;
+        }
+        if (returnType == Integer.class || returnType == Boolean.class) {
+            int updated = 0;
+            for (int value : updatedArray) {
+                updated += value;
+            }
+            return returnType == Boolean.class ? updated > 0 : updated;
+        }
+        throw new InvalidDataAccessApiUsageException(
+            "bad return type for batch update: " + runtimes[0].getMetaData().getMethod());
     }
 
     @SuppressWarnings("unused")
@@ -160,7 +174,7 @@ public class UpdateQuerier implements Querier {
         int[] updatedArray = new int[runtimes.length];
         for (int i = 0; i < updatedArray.length; i++) {
             StatementRuntime runtime = runtimes[i];
-            updatedArray[i] = (Integer) executeSingle(runtime, Integer.class);
+            updatedArray[i] = (Integer) executeSingle(runtime);
         }
         return updatedArray;
     }

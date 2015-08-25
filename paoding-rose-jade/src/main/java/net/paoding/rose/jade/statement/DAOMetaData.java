@@ -50,6 +50,18 @@ public class DAOMetaData {
     public Class<?> getDAOClass() {
         return daoClass;
     }
+    
+    /**
+     * 泛型类型变量在本DAO类中真正的类型
+     * 
+     * @param declaringClass 声明类型变量typeVarName的类
+     * @param typeVarName 泛型变量名
+     * @return
+     */
+    @SuppressWarnings("rawtypes")
+    public Class resolveTypeVariable(Class<?> declaringClass, String typeVarName) {
+        return GenericUtils.resolveTypeVariable(daoClass, declaringClass, typeVarName);
+    }
 
     public Map<String, ?> getConstants() {
         return constants;
