@@ -2,13 +2,13 @@
 
 ## Introduction
 
-Paoding-rose（庖丁肉丝） is an open source framework, which introduces the best way to develop your web applications and RDMS applications.
+Paoding-rose is an open source framework, which introduces the best way to develop your web applications and RDMS applications.
 
-Paoding-rose has been a main development framework of renren.com（人人网）, xiaomi.com（小米科技）.
+Paoding-rose has been a main development framework of [renren.com](http://www.renren.com) (人人网), [mi.com](http://www.mi.com) (小米科技), [mocha.cn](http://mocha.cn) (抹茶美妆). 
 
-And we also receive reports that paoding-rose has been chosen in some applicaitons for qunar.com（去哪儿）, focus.cn（焦点房产）.
+And we also receive reports that paoding-rose has been chosen in some applicaitons for [qunar.com](http://www.qunar.com/) (去哪儿), [focus.cn](http://www.focus.cn/) (焦点房产).
 
-(more report is welcome) 
+(如果您的公司也使用paoding-rose, 欢迎联系qieqie.wang at gmail.com) 
 
 ## Enable paoding-rose in your java project 
 
