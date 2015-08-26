@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <!-- 基本配置 -->
     <modelVersion>4.0.0</modelVersion>
@@ -8,12 +9,12 @@
     <version>2.0-SNAPSHOT</version>
     <name>paoding-rose-parent</name>
 
+    <!-- 发布配置要求 -->
     <parent>
         <groupId>org.sonatype.oss</groupId>
         <artifactId>oss-parent</artifactId>
         <version>7</version>
     </parent>
-
     <distributionManagement>
         <repository>
             <id>ossrh</id>
@@ -25,11 +26,12 @@
         </snapshotRepository>
     </distributionManagement>
 
-    <scm>  
-        <connection>scm:git:git@github.com:paoding-code/paoding-rose.git</connection>  
+    <!-- 代码库 -->
+    <scm>
+        <connection>scm:git:git@github.com:paoding-code/paoding-rose.git</connection>
         <developerConnection>scm:git:git@github.com:paoding-code/paoding-rose.git</developerConnection>
         <url>git@github.com:paoding-code/paoding-rose.git</url>
-    </scm> 
+    </scm>
 
     <!-- 开发人员 -->
     <developers>
@@ -56,7 +58,21 @@
         <module>paoding-rose-all</module>
     </modules>
 
-    <!-- 所有的依赖的版本好都必须要在这里定义方便 -->
+    <!-- snapshot库 -->
+    <repositories>
+        <repository>
+            <id>ossrh-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <!-- 所有的依赖的版本都必须要在这里定义好，不在具体的dependency写实际的version -->
     <properties>
         <junit.version>4.6</junit.version>
         <spring.version>3.2.4.RELEASE</spring.version>
@@ -79,6 +95,33 @@
     <!-- 依赖包及其版本约定(子模块中不能擅自加入不在management管理的dependency) -->
     <dependencyManagement>
         <dependencies>
+            <!-- self artifacts -->
+            <dependency>
+                <groupId>net.paoding</groupId>
+                <artifactId>paoding-rose</artifactId>
+                <version>2.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>net.paoding</groupId>
+                <artifactId>paoding-rose-web</artifactId>
+                <version>2.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>net.paoding</groupId>
+                <artifactId>paoding-rose-jade</artifactId>
+                <version>2.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>net.paoding</groupId>
+                <artifactId>paoding-rose-pipe</artifactId>
+                <version>2.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>net.paoding</groupId>
+                <artifactId>paoding-rose-load</artifactId>
+                <version>2.0-SNAPSHOT</version>
+            </dependency>
+
             <!-- test scope -->
             <dependency>
                 <groupId>junit</groupId>
@@ -252,7 +295,6 @@
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
-
             <!--maven-javadoc-plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -271,11 +313,11 @@
                     </execution>
                 </executions>
             </plugin>
-
             <!--maven-gpg-plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.6</version>
                 <executions>
                     <execution>
                         <id>sign-artifacts</id>

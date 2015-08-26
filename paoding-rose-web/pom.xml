@@ -39,7 +39,6 @@
         <dependency>
             <groupId>net.paoding</groupId>
             <artifactId>paoding-rose-load</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
