@@ -18,7 +18,7 @@ package net.paoding.rose.jade.statement;
 import org.springframework.core.annotation.Order;
 
 /**
- * 可用 {@link Order}来调节优先级，根据 {@link Order} 语义，值越小越有效；
+ * 可用 {@link Order}来调节优先级，根据 {@link Order} 语义，值越小越优先，值越大越后；
  * <p>
  * 如果没有标注 {@link Order} 使用默认值0。
  * 
