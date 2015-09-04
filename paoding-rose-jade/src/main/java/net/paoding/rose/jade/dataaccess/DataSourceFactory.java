@@ -19,13 +19,14 @@ import java.util.Map;
 
 import net.paoding.rose.jade.context.spring.SpringDataSourceFactory;
 import net.paoding.rose.jade.statement.StatementMetaData;
+import net.paoding.rose.jade.statement.StatementRuntime;
 
 /**
  * Jade框架的数据源接口，应用程序通过配置合适的DataSourceFactory实现，框架才能将SQL语句发送到正确的数据库上。
  * <p>
  * 
  * @see SpringDataSourceFactory
- * @author qieqie.wang
+ * @author 王志亮 [qieqie.wang@gmail.com]
  */
 public interface DataSourceFactory {
 
@@ -44,8 +45,8 @@ public interface DataSourceFactory {
      * <p>
      * 
      * @param metaData 正在执行的DAO方法
-     * @param runtime DAO方法执行时参数
+     * @param attributes DAO方法执行时的属性，即 {@link StatementRuntime#getAttributes()}
      * @return
      */
-    DataSourceHolder getHolder(StatementMetaData metaData, Map<String, Object> runtime);
+    DataSourceHolder getHolder(StatementMetaData metaData, Map<String, Object> attributes);
 }

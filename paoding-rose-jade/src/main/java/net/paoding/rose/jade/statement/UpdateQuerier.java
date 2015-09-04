@@ -18,7 +18,6 @@ package net.paoding.rose.jade.statement;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -40,14 +39,14 @@ import net.paoding.rose.jade.dataaccess.DataAccessFactory;
  */
 public class UpdateQuerier implements Querier {
 
-    private final DataAccessFactory dataAccessProvider;
+    private final DataAccessFactory dataAccessFactory;
 
     private final Class<?> returnType;
 
     private final boolean returnGeneratedKeys;
 
-    public UpdateQuerier(DataAccessFactory dataAccessProvider, StatementMetaData metaData) {
-        this.dataAccessProvider = dataAccessProvider;
+    public UpdateQuerier(DataAccessFactory dataAccessFactory, StatementMetaData metaData) {
+        this.dataAccessFactory = dataAccessFactory;
         Method method = metaData.getMethod();
         // 转换基本类型
         Class<?> returnType = metaData.getReturnType();
@@ -76,8 +75,8 @@ public class UpdateQuerier implements Querier {
 
     private Object executeSingle(StatementRuntime runtime) {
         Number result;
-        DataAccess dataAccess = dataAccessProvider.getDataAccess(//
-            runtime.getMetaData(), runtime.getProperties());
+        DataAccess dataAccess = dataAccessFactory.getDataAccess(//
+            runtime.getMetaData(), runtime.getAttributes());
         if (returnGeneratedKeys) {
             ArrayList<Map<String, Object>> keys = new ArrayList<Map<String, Object>>(1);
             KeyHolder generatedKeyHolder = new GeneratedKeyHolder(keys);
@@ -124,19 +123,19 @@ public class UpdateQuerier implements Querier {
             StatementRuntime runtime = runtimes[i];
             List<StatementRuntime> batch = batchs.get(runtime.getSQL());
             if (batch == null) {
-                batch = new LinkedList<StatementRuntime>();
+                batch = new ArrayList<StatementRuntime>(runtimes.length);
                 batchs.put(runtime.getSQL(), batch);
             }
-            runtime.setProperty("_index_at_batch_", i); // 该runtime在batch中的位置
+            runtime.setAttribute("_index_at_batch_", i); // 该runtime在batch中的位置
             batch.add(runtime);
         }
-        // TODO: 多个真正的batch可以考虑并行执行~待定
+        // TODO: 多个真正的batch可以考虑并行执行(而非顺序执行)~待定
         for (Map.Entry<String, List<StatementRuntime>> batch : batchs.entrySet()) {
             String sql = batch.getKey();
             List<StatementRuntime> batchRuntimes = batch.getValue();
             StatementRuntime runtime = batchRuntimes.get(0);
-            DataAccess dataAccess = dataAccessProvider.getDataAccess(//
-                runtime.getMetaData(), runtime.getProperties());
+            DataAccess dataAccess = dataAccessFactory.getDataAccess(//
+                runtime.getMetaData(), runtime.getAttributes());
             List<Object[]> argsList = new ArrayList<Object[]>(batchRuntimes.size());
             for (StatementRuntime batchRuntime : batchRuntimes) {
                 argsList.add(batchRuntime.getArgs());
@@ -147,7 +146,7 @@ public class UpdateQuerier implements Querier {
             } else {
                 int index_at_sub_batch = 0;
                 for (StatementRuntime batchRuntime : batchRuntimes) {
-                    Integer _index_at_batch_ = batchRuntime.getProperty("_index_at_batch_");
+                    Integer _index_at_batch_ = batchRuntime.getAttribute("_index_at_batch_");
                     updatedArray[_index_at_batch_] = batchResult[index_at_sub_batch++];
                 }
             }

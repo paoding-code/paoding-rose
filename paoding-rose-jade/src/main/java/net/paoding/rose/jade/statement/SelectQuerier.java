@@ -48,13 +48,13 @@ public class SelectQuerier implements Querier {
 
     private final Class<?> returnType;
 
-    private final DataAccessFactory dataAccessProvider;
+    private final DataAccessFactory dataAccessFactory;
     
     private final ResultConverter converter;
 
-    public SelectQuerier(DataAccessFactory dataAccessProvider, StatementMetaData metaData,
+    public SelectQuerier(DataAccessFactory dataAccessFactory, StatementMetaData metaData,
             RowMapper rowMapper) {
-        this.dataAccessProvider = dataAccessProvider;
+        this.dataAccessFactory = dataAccessFactory;
         this.returnType = metaData.getReturnType();
         this.rowMapper = rowMapper;
         this.converter = makeResultConveter();
@@ -66,8 +66,8 @@ public class SelectQuerier implements Querier {
     }
 
     public Object execute(SQLType sqlType, StatementRuntime runtime) {
-        DataAccess dataAccess = dataAccessProvider.getDataAccess(//
-                runtime.getMetaData(), runtime.getProperties());
+        DataAccess dataAccess = dataAccessFactory.getDataAccess(//
+                runtime.getMetaData(), runtime.getAttributes());
         // 执行查询
         List<?> listResult = dataAccess.select(runtime.getSQL(), runtime.getArgs(), rowMapper);
         return converter.convert(runtime, listResult);
