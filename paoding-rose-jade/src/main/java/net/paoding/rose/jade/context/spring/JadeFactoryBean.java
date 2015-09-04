@@ -17,18 +17,19 @@ package net.paoding.rose.jade.context.spring;
 
 import java.lang.reflect.Proxy;
 
-import net.paoding.rose.jade.context.JadeInvocationHandler;
-import net.paoding.rose.jade.dataaccess.DataAccessFactory;
-import net.paoding.rose.jade.rowmapper.RowMapperFactory;
-import net.paoding.rose.jade.statement.DAOMetaData;
-import net.paoding.rose.jade.statement.InterpreterFactory;
-import net.paoding.rose.jade.statement.StatementWrapperProvider;
-import net.paoding.rose.jade.statement.cached.CacheProvider;
-
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
+
+import net.paoding.rose.jade.context.JadeInvocationHandler;
+import net.paoding.rose.jade.dataaccess.DataAccessFactory;
+import net.paoding.rose.jade.rowmapper.RowMapperFactory;
+import net.paoding.rose.jade.statement.DAOConfig;
+import net.paoding.rose.jade.statement.DAOMetaData;
+import net.paoding.rose.jade.statement.InterpreterFactory;
+import net.paoding.rose.jade.statement.StatementWrapperProvider;
+import net.paoding.rose.jade.statement.cached.CacheProvider;
 
 /**
  * 
@@ -51,7 +52,7 @@ public class JadeFactoryBean implements FactoryBean, InitializingBean {
     protected CacheProvider cacheProvider;
 
     protected Object daoObject;
-    
+
     // 可选的
     private StatementWrapperProvider statementWrapperProvider;
 
@@ -110,11 +111,11 @@ public class JadeFactoryBean implements FactoryBean, InitializingBean {
     public CacheProvider getCacheProvider() {
         return cacheProvider;
     }
-    
+
     public StatementWrapperProvider getStatementWrapperProvider() {
         return statementWrapperProvider;
     }
-    
+
     public void setStatementWrapperProvider(StatementWrapperProvider statementWrapperProvider) {
         this.statementWrapperProvider = statementWrapperProvider;
     }
@@ -144,16 +145,16 @@ public class JadeFactoryBean implements FactoryBean, InitializingBean {
 
     protected Object createDAO() {
         try {
-            DAOMetaData daoMetaData = new DAOMetaData(objectType);
-            JadeInvocationHandler handler = new JadeInvocationHandler(
-                    //
-                    daoMetaData, interpreterFactory, rowMapperFactory, dataAccessFactory,
-                    cacheProvider, statementWrapperProvider);
+            DAOConfig config = new DAOConfig(dataAccessFactory, rowMapperFactory,
+                interpreterFactory);
+            DAOMetaData daoMetaData = new DAOMetaData(objectType, config);
+            JadeInvocationHandler handler = new JadeInvocationHandler(daoMetaData, cacheProvider,
+                statementWrapperProvider);
             return Proxy.newProxyInstance(ClassUtils.getDefaultClassLoader(),
-                    new Class[] { objectType }, handler);
+                new Class[] { objectType }, handler);
         } catch (RuntimeException e) {
-            throw new IllegalStateException("failed to create bean for "
-                    + this.objectType.getName(), e);
+            throw new IllegalStateException(
+                "failed to create bean for " + this.objectType.getName(), e);
         }
     }
 

@@ -19,23 +19,24 @@ import java.lang.reflect.Proxy;
 
 import javax.sql.DataSource;
 
+import org.springframework.util.ClassUtils;
+
 import net.paoding.rose.jade.context.JadeInvocationHandler;
 import net.paoding.rose.jade.dataaccess.DataAccessFactoryAdapter;
 import net.paoding.rose.jade.dataaccess.DataSourceFactory;
 import net.paoding.rose.jade.dataaccess.datasource.SimpleDataSourceFactory;
 import net.paoding.rose.jade.rowmapper.DefaultRowMapperFactory;
 import net.paoding.rose.jade.rowmapper.RowMapperFactory;
+import net.paoding.rose.jade.statement.DAOConfig;
 import net.paoding.rose.jade.statement.DAOMetaData;
 import net.paoding.rose.jade.statement.DefaultInterpreterFactory;
 import net.paoding.rose.jade.statement.Interpreter;
 import net.paoding.rose.jade.statement.StatementWrapperProvider;
 import net.paoding.rose.jade.statement.cached.CacheProvider;
 
-import org.springframework.util.ClassUtils;
-
 /**
  * 
- * @author qieqie
+ * @author 王志亮 [qieqie.wang@gmail.com]
  * 
  */
 //BUG: @SQL中的 :1.create_date应该抛出错误而非返回null
@@ -99,11 +100,11 @@ public class JadeFactory {
     @SuppressWarnings("unchecked")
     public <T> T create(Class<?> daoClass) {
         try {
-            DAOMetaData daoMetaData = new DAOMetaData(daoClass);
-            JadeInvocationHandler handler = new JadeInvocationHandler(
-                    //
-                    daoMetaData, interpreterFactory, rowMapperFactory, dataAccessFactory,
-                    cacheProvider, statementWrapperProvider);
+            DAOConfig config = new DAOConfig(dataAccessFactory, rowMapperFactory,
+                interpreterFactory);
+            DAOMetaData daoMetaData = new DAOMetaData(daoClass, config);
+            JadeInvocationHandler handler = new JadeInvocationHandler(daoMetaData, cacheProvider,
+                statementWrapperProvider);
             ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
             return (T) Proxy.newProxyInstance(classLoader, new Class[] { daoClass }, handler);
         } catch (RuntimeException e) {

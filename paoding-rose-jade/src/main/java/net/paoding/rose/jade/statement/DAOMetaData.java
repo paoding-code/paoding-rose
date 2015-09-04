@@ -18,7 +18,6 @@ package net.paoding.rose.jade.statement;
 import java.util.Collections;
 import java.util.Map;
 
-
 /**
  * {@link DAOMetaData} 封装缓存一个DAO接口类本身的一些信息，比如类对象、类常量等等
  * 
@@ -26,6 +25,11 @@ import java.util.Map;
  * @author 廖涵 [in355hz@gmail.com]
  */
 public class DAOMetaData {
+
+    /**
+     * 
+     */
+    private final DAOConfig config;
 
     /**
      * DAO接类
@@ -41,16 +45,25 @@ public class DAOMetaData {
      * 
      * @param daoClass
      */
-    public DAOMetaData(Class<?> daoClass) {
+    public DAOMetaData(Class<?> daoClass, DAOConfig config) {
         this.daoClass = daoClass;
         this.constants = Collections.unmodifiableMap(//
-                GenericUtils.getConstantFrom(daoClass, true, true));
+            GenericUtils.getConstantFrom(daoClass, true, true));
+        this.config = config;
+    }
+
+    /**
+     * 支持本DAO类的基础配置（数据源配置、解析器配置、OR映射配置等等）
+     * @return
+     */
+    public DAOConfig getConfig() {
+        return config;
     }
 
     public Class<?> getDAOClass() {
         return daoClass;
     }
-    
+
     /**
      * 泛型类型变量在本DAO类中真正的类型
      * 

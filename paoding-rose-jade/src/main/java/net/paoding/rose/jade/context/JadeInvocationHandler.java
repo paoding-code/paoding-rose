@@ -70,15 +70,12 @@ public class JadeInvocationHandler implements InvocationHandler {
     
     public JadeInvocationHandler(//
             DAOMetaData daoMetaData,//
-            InterpreterFactory interpreterFactory, //
-            RowMapperFactory rowMapperFactory,//
-            DataAccessFactory dataAccessFactory,//
             CacheProvider cacheProvider, //
             StatementWrapperProvider statementWrapperProvider) {
         this.daoMetaData = daoMetaData;
-        this.rowMapperFactory = rowMapperFactory;
-        this.dataAccessFactory = dataAccessFactory;
-        this.interpreterFactory = interpreterFactory;
+        this.rowMapperFactory = daoMetaData.getConfig().getRowMapperFactory();
+        this.dataAccessFactory = daoMetaData.getConfig().getDataAccessFactory();
+        this.interpreterFactory = daoMetaData.getConfig().getInterpreterFactory();
         this.cacheProvider = cacheProvider;
         this.statementWrapperProvider = statementWrapperProvider;
     }
