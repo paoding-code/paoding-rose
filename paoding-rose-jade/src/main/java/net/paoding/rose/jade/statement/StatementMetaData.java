@@ -17,6 +17,8 @@ package net.paoding.rose.jade.statement;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import net.paoding.rose.jade.annotation.SQL;
@@ -104,6 +106,9 @@ public class StatementMetaData {
     private final ShardBy shardBy;
 
     private final int parameterCount;
+    
+
+    private Map<String, Object> attributes;
 
     // --------------------------------------------
 
@@ -204,6 +209,33 @@ public class StatementMetaData {
     
     public SQLType getSQLType() {
         return sqlType;
+    }
+
+    /**
+     * 设置挂在DAO方法上的属性
+     * 
+     * @param name
+     * @param value
+     */
+    public void setAttribute(String name, Object value) {
+        if (attributes == null) {
+            synchronized (this) {
+                if (attributes == null) {
+                    attributes = new ConcurrentHashMap<String, Object>(4);
+                }
+            }
+        }
+        this.attributes.put(name, value);
+    }
+
+    /**
+     * 
+     * @param name
+     * @return 获取由 {@link #setAttribute(String, Object)} 的属性
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T getAttribute(String name) {
+        return (T) (attributes == null ? null : attributes.get(name));
     }
     
     protected SQLType resolveSQLType(SQL sql) {
