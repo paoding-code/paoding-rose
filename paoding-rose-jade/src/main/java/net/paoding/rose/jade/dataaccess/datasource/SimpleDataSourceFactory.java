@@ -26,7 +26,7 @@ import net.paoding.rose.jade.statement.StatementMetaData;
 /**
  * 当你的应用程序只需要一个DataSource时候使用这个实现即可！
  * 
- * @author qieqie
+ * @author 王志亮 [qieqie.wang@gmail.com]
  * 
  */
 public class SimpleDataSourceFactory implements DataSourceFactory {

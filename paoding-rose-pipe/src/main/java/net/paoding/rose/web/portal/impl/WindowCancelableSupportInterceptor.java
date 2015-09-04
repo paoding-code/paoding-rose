@@ -22,7 +22,7 @@ import net.paoding.rose.web.portal.PortalUtils;
 
 /**
  * 
- * @author qieqie.wang@gmail.com
+ * @author 王志亮 [qieqie.wang@gmail.com]
  * 
  */
 public class WindowCancelableSupportInterceptor extends ControllerInterceptorAdapter {

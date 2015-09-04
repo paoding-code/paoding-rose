@@ -27,7 +27,7 @@ import net.paoding.rose.web.portal.Window;
 
 /**
  * 
- * @author qieqie.wang@gmail.com
+ * @author 王志亮 [qieqie.wang@gmail.com]
  * 
  */
 public class WindowForView implements Window {

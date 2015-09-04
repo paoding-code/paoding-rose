@@ -13,7 +13,7 @@ import org.junit.Test;
 /**
  * 通过集成DAO和JadeFactory，验证 {@link DataSources}的可用
  * 
- * @author qieqie
+ * @author 王志亮 [qieqie.wang@gmail.com]
  * 
  */
 public class DataSourcesTest {

@@ -33,7 +33,7 @@ import org.apache.commons.lang.StringUtils;
  * 本工厂实现可以注册多个不同的数据源，使用者需要为每个数据源设定一个以点号分隔的名字，形同一个package名称或class全名称。
  * 当框架要求本工厂为某个DAO方法提供数据源时，本工厂会从class全名开始逐级寻找是否有相应数据源被注册，如果有则返回。
  * 
- * @author qieqie.wang@gmail.com
+ * @author 王志亮 [qieqie.wang@gmail.com]
  * 
  */
 public class HierarchicalDataSourceFactory implements DataSourceFactory {

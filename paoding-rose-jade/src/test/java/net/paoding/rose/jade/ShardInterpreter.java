@@ -14,7 +14,7 @@ import org.springframework.core.annotation.Order;
  * 真正的表名可以通过runtime.getProperty(ShardAttributes.targetTable)知道，
  * 这个属性可以和DataSourceFactory结合使用，从而实现散库；
  * 
- * @author qieqie
+ * @author 王志亮 [qieqie.wang@gmail.com]
  * 
  */
 @Order(-10)

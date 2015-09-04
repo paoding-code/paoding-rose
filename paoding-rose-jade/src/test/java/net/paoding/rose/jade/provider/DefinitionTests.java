@@ -11,7 +11,7 @@ public class DefinitionTests extends TestCase {
 
     public void testDefinition() {
 
-        DAOMetaData definition = new DAOMetaData(Character.class);
+        DAOMetaData definition = new DAOMetaData(Character.class, null);
         Assert.assertEquals("java.lang.Character", definition.toString());
 
         // 输出所有常量

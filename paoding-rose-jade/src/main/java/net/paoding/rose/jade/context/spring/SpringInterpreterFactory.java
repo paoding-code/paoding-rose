@@ -32,7 +32,7 @@ import org.springframework.context.ApplicationContextAware;
 
 /**
  * 
- * @author qieqie
+ * @author 王志亮 [qieqie.wang@gmail.com]
  * 
  */
 public class SpringInterpreterFactory implements InterpreterFactory, ApplicationContextAware {

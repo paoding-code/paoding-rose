@@ -21,7 +21,7 @@ import org.springframework.core.annotation.Order;
 
 /**
  * 
- * @author qieqie
+ * @author 王志亮 [qieqie.wang@gmail.com]
  * 
  */
 public class InterpreterComparator implements Comparator<Interpreter> {

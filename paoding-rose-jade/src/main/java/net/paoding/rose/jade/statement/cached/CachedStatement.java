@@ -32,7 +32,7 @@ import org.springframework.beans.BeanWrapperImpl;
 /**
  * {@link CachedStatement} 封装了支持Cache的逻辑
  * 
- * @author qieqie.wang
+ * @author 王志亮 [qieqie.wang@gmail.com]
  * 
  */
 public class CachedStatement implements Statement {

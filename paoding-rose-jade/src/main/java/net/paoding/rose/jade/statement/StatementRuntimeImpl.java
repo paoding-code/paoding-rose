@@ -21,7 +21,7 @@ import java.util.Map;
 
 /**
  * 
- * @author qieqie
+ * @author 王志亮 [qieqie.wang@gmail.com]
  * 
  */
 public class StatementRuntimeImpl implements StatementRuntime {
@@ -34,7 +34,7 @@ public class StatementRuntimeImpl implements StatementRuntime {
 
     private Object[] args;
 
-    private Map<String, Object> properties;
+    private Map<String, Object> attributes;
 
     public StatementRuntimeImpl(StatementMetaData metaData, Map<String, Object> parameters) {
         this.metaData = metaData;
@@ -73,25 +73,43 @@ public class StatementRuntimeImpl implements StatementRuntime {
     }
 
     @Override
-    public Map<String, Object> getProperties() {
-        if (properties == null) {
+    public Map<String, Object> getAttributes() {
+        if (attributes == null) {
             return Collections.emptyMap();
         }
-        return Collections.unmodifiableMap(this.properties);
+        return this.attributes;
     }
 
     @Override
-    public void setProperty(String name, Object value) {
-        if (properties == null) {
-            properties = new HashMap<String, Object>();
+    public void setAttribute(String name, Object value) {
+        if (attributes == null) {
+            attributes = new HashMap<String, Object>();
         }
-        this.properties.put(name, value);
+        this.attributes.put(name, value);
     }
 
     @SuppressWarnings("unchecked")
     @Override
+    public <T> T getAttribute(String name) {
+        return (T) (attributes == null ? null : attributes.get(name));
+    }
+
+    // 不要删除，以便兼容1.x
+    @Override
+    public Map<String, Object> getProperties() {
+        return getAttributes();
+    }
+
+    // 不要删除，以便兼容1.x
+    @Override
+    public void setProperty(String name, Object value) {
+        setAttribute(name, value);
+    }
+
+    // 不要删除，以便兼容1.x
+    @Override
     public <T> T getProperty(String name) {
-        return (T) (properties == null ? null : properties.get(name));
+        return getAttribute(name);
     }
 
 }

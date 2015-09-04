@@ -18,7 +18,7 @@ import net.paoding.rose.jade.context.application.JadeFactory;
 /**
  * 验证继承功能
  * 
- * @author qieqie
+ * @author 王志亮 [qieqie.wang@gmail.com]
  * 
  */
 public class SuperTest {

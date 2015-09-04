@@ -22,7 +22,7 @@ import org.apache.commons.lang.ArrayUtils;
 
 /**
  * 
- * @author qieqie
+ * @author 王志亮 [qieqie.wang@gmail.com]
  * 
  */
 public class DefaultInterpreterFactory implements InterpreterFactory {

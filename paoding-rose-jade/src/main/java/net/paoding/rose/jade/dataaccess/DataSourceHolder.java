@@ -23,7 +23,7 @@ import javax.sql.DataSource;
  * <p>
  * 
  * @see DataSourceFactory
- * @author qieqie.wang
+ * @author 王志亮 [qieqie.wang@gmail.com]
  * 
  */
 public class DataSourceHolder {

@@ -17,7 +17,7 @@ import org.junit.Test;
 /**
  * 验证批量更新功能
  * 
- * @author qieqie
+ * @author 王志亮 [qieqie.wang@gmail.com]
  * 
  */
 public class BatchUpdateTest {

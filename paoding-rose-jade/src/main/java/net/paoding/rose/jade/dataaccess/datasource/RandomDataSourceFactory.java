@@ -30,7 +30,7 @@ import net.paoding.rose.jade.statement.StatementMetaData;
 /**
  * 从预设的一系列的DataSource随机提供一个
  * 
- * @author qieqie
+ * @author 王志亮 [qieqie.wang@gmail.com]
  * 
  */
 public class RandomDataSourceFactory implements DataSourceFactory {

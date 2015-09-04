@@ -30,7 +30,7 @@ import org.springframework.dao.InvalidDataAccessApiUsageException;
 
 /**
  * 
- * @author qieqie
+ * @author 王志亮 [qieqie.wang@gmail.com]
  * 
  */
 public class JdbcStatement implements Statement {

@@ -19,7 +19,7 @@ import net.paoding.rose.jade.annotation.SQLType;
 
 /**
  * 
- * @author qieqie
+ * @author 王志亮 [qieqie.wang@gmail.com]
  * 
  */
 public interface Querier {
