@@ -15,8 +15,6 @@
  */
 package net.paoding.rose.jade.annotation;
 
-import org.springframework.jdbc.core.RowMapper;
-
 import net.paoding.rose.jade.statement.StatementMetaData;
 
 /**
@@ -25,12 +23,12 @@ import net.paoding.rose.jade.statement.StatementMetaData;
  *
  * @param <T>
  */
-public interface StatementRowMapper<T> extends RowMapper<T> {
+public interface StatementAware {
 
     /**
-     * 进行一次初始化，目的是告知有关的DAO信息
+     * 设置 {@link StatementMetaData}，目的是告知有关的DAO信息
      * @param smd
      */
-    public void init(StatementMetaData smd);
+    public void setStatementMetaData(StatementMetaData smd);
 
 }
