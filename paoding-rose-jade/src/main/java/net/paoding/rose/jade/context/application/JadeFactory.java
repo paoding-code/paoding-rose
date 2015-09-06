@@ -101,10 +101,9 @@ public class JadeFactory {
     public <T> T create(Class<?> daoClass) {
         try {
             DAOConfig config = new DAOConfig(dataAccessFactory, rowMapperFactory,
-                interpreterFactory);
+                interpreterFactory, cacheProvider, statementWrapperProvider);
             DAOMetaData daoMetaData = new DAOMetaData(daoClass, config);
-            JadeInvocationHandler handler = new JadeInvocationHandler(daoMetaData, cacheProvider,
-                statementWrapperProvider);
+            JadeInvocationHandler handler = new JadeInvocationHandler(daoMetaData);
             ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
             return (T) Proxy.newProxyInstance(classLoader, new Class[] { daoClass }, handler);
         } catch (RuntimeException e) {

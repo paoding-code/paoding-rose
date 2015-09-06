@@ -282,6 +282,7 @@ public class StatementMetaData {
             Pattern.compile("^\\s*FIND.*", Pattern.CASE_INSENSITIVE), //
             Pattern.compile("^\\s*READ.*", Pattern.CASE_INSENSITIVE), //
             Pattern.compile("^\\s*QUERY.*", Pattern.CASE_INSENSITIVE), //
+            Pattern.compile("^\\s*COUNT.*", Pattern.CASE_INSENSITIVE), //
             Pattern.compile("^\\s*SHOW.*", Pattern.CASE_INSENSITIVE), //
             Pattern.compile("^\\s*DESC.*", Pattern.CASE_INSENSITIVE), //
             Pattern.compile("^\\s*DESCRIBE.*", Pattern.CASE_INSENSITIVE), //

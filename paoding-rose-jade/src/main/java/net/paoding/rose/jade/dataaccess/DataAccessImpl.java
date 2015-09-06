@@ -47,7 +47,7 @@ public class DataAccessImpl implements DataAccess {
 
     // ------------------------------------------------
 
-    public javax.sql.DataSource getDataSource() {
+    public DataSource getDataSource() {
         return this.jdbcTemplate.getDataSource();
     }
 

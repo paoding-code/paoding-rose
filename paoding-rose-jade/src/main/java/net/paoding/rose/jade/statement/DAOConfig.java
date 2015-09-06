@@ -17,6 +17,7 @@ package net.paoding.rose.jade.statement;
 
 import net.paoding.rose.jade.dataaccess.DataAccessFactory;
 import net.paoding.rose.jade.rowmapper.RowMapperFactory;
+import net.paoding.rose.jade.statement.cached.CacheProvider;
 
 /**
  * 支持DAO类的基础配置（数据源配置、SQL解析器配置、OR映射配置等等）
@@ -32,12 +33,19 @@ public class DAOConfig {
 
     private final InterpreterFactory interpreterFactory;
 
+    private final CacheProvider cacheProvider;
+
+    private final StatementWrapperProvider statementWrapperProvider;
+
     public DAOConfig(DataAccessFactory dataAccessFactory, //
                      RowMapperFactory rowMapperFactory, //
-                     InterpreterFactory interpreterFactory) {
+                     InterpreterFactory interpreterFactory, CacheProvider cacheProvider,
+                     StatementWrapperProvider statementWrapperProvider) {
         this.dataAccessFactory = dataAccessFactory;
         this.rowMapperFactory = rowMapperFactory;
         this.interpreterFactory = interpreterFactory;
+        this.cacheProvider = cacheProvider;
+        this.statementWrapperProvider = statementWrapperProvider;
     }
 
     /**
@@ -65,6 +73,22 @@ public class DAOConfig {
      */
     public RowMapperFactory getRowMapperFactory() {
         return rowMapperFactory;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public CacheProvider getCacheProvider() {
+        return cacheProvider;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public StatementWrapperProvider getStatementWrapperProvider() {
+        return statementWrapperProvider;
     }
 
 }

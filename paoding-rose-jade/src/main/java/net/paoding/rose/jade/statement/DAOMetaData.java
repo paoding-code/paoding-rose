@@ -17,6 +17,7 @@ package net.paoding.rose.jade.statement;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * {@link DAOMetaData} 封装缓存一个DAO接口类本身的一些信息，比如类对象、类常量等等
@@ -41,6 +42,8 @@ public class DAOMetaData {
      */
     private final Map<String, ?> constants;
 
+    private final Map<String, Object> attributes;
+
     /**
      * 
      * @param daoClass
@@ -50,6 +53,7 @@ public class DAOMetaData {
         this.constants = Collections.unmodifiableMap(//
             GenericUtils.getConstantFrom(daoClass, true, true));
         this.config = config;
+        this.attributes = new ConcurrentHashMap<String, Object>(4);
     }
 
     /**
@@ -83,6 +87,26 @@ public class DAOMetaData {
     @SuppressWarnings("unchecked")
     public <T> T getConstant(String fieldName) {
         return (T) constants.get(fieldName);
+    }
+
+    /**
+     * 设置挂在DAO上的属性
+     * 
+     * @param name
+     * @param value
+     */
+    public void setAttribute(String name, Object value) {
+        this.attributes.put(name, value);
+    }
+
+    /**
+     * 
+     * @param name
+     * @return 获取由 {@link #setAttribute(String, Object)} 的属性
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T getAttribute(String name) {
+        return (T) attributes.get(name);
     }
 
     @Override

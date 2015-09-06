@@ -23,11 +23,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.jdbc.core.RowMapper;
+
 import net.paoding.rose.jade.annotation.DAO;
 import net.paoding.rose.jade.annotation.SQLParam;
 import net.paoding.rose.jade.annotation.SQLType;
 import net.paoding.rose.jade.dataaccess.DataAccessFactory;
 import net.paoding.rose.jade.rowmapper.RowMapperFactory;
+import net.paoding.rose.jade.statement.DAOConfig;
 import net.paoding.rose.jade.statement.DAOMetaData;
 import net.paoding.rose.jade.statement.Interpreter;
 import net.paoding.rose.jade.statement.InterpreterFactory;
@@ -41,11 +46,8 @@ import net.paoding.rose.jade.statement.UpdateQuerier;
 import net.paoding.rose.jade.statement.cached.CacheProvider;
 import net.paoding.rose.jade.statement.cached.CachedStatement;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.jdbc.core.RowMapper;
-
 /**
+ * DAO代理处理器（一个DAO类对应一个处理器实例）
  * 
  * @author 王志亮 [qieqie.wang@gmail.com]
  * 
@@ -58,26 +60,20 @@ public class JadeInvocationHandler implements InvocationHandler {
 
     private final DAOMetaData daoMetaData;
 
-    private final DataAccessFactory dataAccessFactory;
-
-    private final RowMapperFactory rowMapperFactory;
-
-    private final InterpreterFactory interpreterFactory;
-
-    private final CacheProvider cacheProvider;
-    
-    private final StatementWrapperProvider statementWrapperProvider;
-    
-    public JadeInvocationHandler(//
-            DAOMetaData daoMetaData,//
-            CacheProvider cacheProvider, //
-            StatementWrapperProvider statementWrapperProvider) {
+    /**
+     * 
+     * @param daoMetaData
+     */
+    public JadeInvocationHandler(DAOMetaData daoMetaData) {
         this.daoMetaData = daoMetaData;
-        this.rowMapperFactory = daoMetaData.getConfig().getRowMapperFactory();
-        this.dataAccessFactory = daoMetaData.getConfig().getDataAccessFactory();
-        this.interpreterFactory = daoMetaData.getConfig().getInterpreterFactory();
-        this.cacheProvider = cacheProvider;
-        this.statementWrapperProvider = statementWrapperProvider;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public DAOMetaData getDAOMetaData() {
+        return daoMetaData;
     }
 
     private static final String[] INDEX_NAMES = new String[] { ":1", ":2", ":3", ":4", ":5", ":6",
@@ -136,7 +132,7 @@ public class JadeInvocationHandler implements InvocationHandler {
     }
 
     private StringBuilder getInvocationInfo(StatementMetaData metaData,
-            Map<String, Object> parameters) {
+                                            Map<String, Object> parameters) {
         StringBuilder sb = new StringBuilder();
         sb.append(metaData).append("\n");
         sb.append("\tsql: ").append(metaData.getSQL()).append("\n");
@@ -155,6 +151,15 @@ public class JadeInvocationHandler implements InvocationHandler {
             synchronized (method) {
                 statement = statements.get(method);
                 if (statement == null) {
+                    // config
+                    DAOConfig config = daoMetaData.getConfig();
+                    DataAccessFactory dataAccessFactory = config.getDataAccessFactory();
+                    RowMapperFactory rowMapperFactory = config.getRowMapperFactory();
+                    InterpreterFactory interpreterFactory = config.getInterpreterFactory();
+                    CacheProvider cacheProvider = config.getCacheProvider();
+                    StatementWrapperProvider wrapperProvider = config.getStatementWrapperProvider();
+
+                    // create
                     StatementMetaData smd = new StatementMetaData(daoMetaData, method);
                     SQLType sqlType = smd.getSQLType();
                     Querier querier;
@@ -169,21 +174,17 @@ public class JadeInvocationHandler implements InvocationHandler {
                     if (cacheProvider != null) {
                         statement = new CachedStatement(cacheProvider, statement);
                     }
-                    statements.put(method, wrap(statement));
+                    if (wrapperProvider != null) {
+                        statement = wrapperProvider.wrap(statement);
+                    }
+                    statements.put(method, statement);
                 }
             }
         }
         return statement;
     }
-    
-    private Statement wrap(Statement statement) {
-        if (statementWrapperProvider != null) {
-            return statementWrapperProvider.wrap(statement);
-        }
-        return statement;
-    }
 
-    private Object invokeObjectMethod(Object proxy, Method method, Object[] args)
+    private Object invokeObjectMethod(Object proxy, Method method, Object[] args) 
             throws CloneNotSupportedException {
         String methodName = method.getName();
         if (methodName.equals("toString")) {
