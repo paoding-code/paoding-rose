@@ -16,17 +16,22 @@
 package net.paoding.rose.jade.statement;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
+
 import net.paoding.rose.jade.annotation.ReturnGeneratedKeys;
 import net.paoding.rose.jade.annotation.SQLType;
-
-import org.apache.commons.lang.ClassUtils;
-import org.springframework.dao.InvalidDataAccessApiUsageException;
 
 /**
  * 
@@ -34,6 +39,8 @@ import org.springframework.dao.InvalidDataAccessApiUsageException;
  * 
  */
 public class JdbcStatement implements Statement {
+
+    private static final Log sqlLogger = LogFactory.getLog("jade_sql.log");
 
     private final StatementMetaData metaData;
 
@@ -44,6 +51,8 @@ public class JdbcStatement implements Statement {
     private final boolean batchUpdate;
 
     private final SQLType sqlType;
+
+    private final String logPrefix;
 
     public JdbcStatement(StatementMetaData statementMetaData, SQLType sqlType,
                          Interpreter[] interpreters, Querier querier) {
@@ -87,6 +96,7 @@ public class JdbcStatement implements Statement {
         } else {
             this.batchUpdate = false;
         }
+        this.logPrefix = "\n @method:" + this.metaData;
     }
 
     @Override
@@ -101,6 +111,7 @@ public class JdbcStatement implements Statement {
             Iterable<?> iterable = (Iterable<?>) parameters.get(":1");
             Iterator<?> iterator = (Iterator<?>) iterable.iterator();
             List<StatementRuntime> runtimes = new LinkedList<StatementRuntime>();
+            int index = 0;
             while (iterator.hasNext()) {
                 Object arg = iterator.next();
                 HashMap<String, Object> clone = new HashMap<String, Object>(parameters);
@@ -113,7 +124,11 @@ public class JdbcStatement implements Statement {
                 for (Interpreter interpreter : interpreters) {
                     interpreter.interpret(runtime);
                 }
+                if (index == 0) {
+                    log(parameters, runtime);
+                }
                 runtimes.add(runtime);
+                index++;
             }
             return querier.execute(sqlType, runtimes.toArray(new StatementRuntime[0]));
         } else {
@@ -121,7 +136,28 @@ public class JdbcStatement implements Statement {
             for (Interpreter interpreter : interpreters) {
                 interpreter.interpret(runtime);
             }
+            log(parameters, runtime);
             return querier.execute(sqlType, runtime);
+        }
+
+    }
+
+    private void log(Map<String, Object> parameters, StatementRuntime runtime) {
+        if (sqlLogger.isInfoEnabled()) {
+            String sql = runtime.getSQL();
+            String argsAsString = Arrays.toString(runtime.getArgs());
+            StringBuilder sb = new StringBuilder(1024);
+            sb.append(logPrefix);
+            sb.append("\n @sql:\t").append(sql);//
+            sb.append("\n @args:\t");
+            ArrayList<String> keys = new ArrayList<String>(parameters.keySet());
+            Collections.sort(keys);
+            for (String key : keys) {
+                sb.append(key).append("='").append(parameters.get(key)).append("'  ");
+            }
+            sb.append("\n sql:\t").append(runtime.getSQL());//
+            sb.append("\n args:\t").append(argsAsString);
+            sqlLogger.info(sb.toString());
         }
     }
 

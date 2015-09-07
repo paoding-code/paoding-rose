@@ -17,8 +17,6 @@ package net.paoding.rose.jade.context;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -55,6 +53,7 @@ import net.paoding.rose.jade.statement.cached.CachedStatement;
 public class JadeInvocationHandler implements InvocationHandler {
 
     private static final Log logger = LogFactory.getLog(JadeInvocationHandler.class);
+    private static final Log sqlLogger = LogFactory.getLog("jade_sql.log");
 
     private final ConcurrentHashMap<Method, Statement> statements = new ConcurrentHashMap<Method, Statement>();
 
@@ -110,10 +109,8 @@ public class JadeInvocationHandler implements InvocationHandler {
             }
         }
         // logging
-        StringBuilder invocationInfo = null;
         if (debugEnabled) {
-            invocationInfo = getInvocationInfo(statemenetMetaData, parameters);
-            logger.debug("invoking " + invocationInfo.toString());
+            logger.info("invoking " + statemenetMetaData);
         }
 
         // executing
@@ -122,27 +119,10 @@ public class JadeInvocationHandler implements InvocationHandler {
         long cost = System.currentTimeMillis() - begin;
 
         // logging
-        if (logger.isInfoEnabled()) {
-            if (invocationInfo == null) {
-                invocationInfo = getInvocationInfo(statemenetMetaData, parameters);
-            }
-            logger.info("cost " + cost + "ms: " + invocationInfo);
+        if (sqlLogger.isInfoEnabled()) {
+            sqlLogger.info(statemenetMetaData + "\tcost " + cost + "ms." );
         }
         return result;
-    }
-
-    private StringBuilder getInvocationInfo(StatementMetaData metaData,
-                                            Map<String, Object> parameters) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(metaData).append("\n");
-        sb.append("\tsql: ").append(metaData.getSQL()).append("\n");
-        sb.append("\tparameters: ");
-        ArrayList<String> keys = new ArrayList<String>(parameters.keySet());
-        Collections.sort(keys);
-        for (String key : keys) {
-            sb.append(key).append("='").append(parameters.get(key)).append("'  ");
-        }
-        return sb;
     }
 
     private Statement getStatement(Method method) {
