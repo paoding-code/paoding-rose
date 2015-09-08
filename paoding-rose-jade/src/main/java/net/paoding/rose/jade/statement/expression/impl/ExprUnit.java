@@ -37,9 +37,13 @@ public class ExprUnit implements ExqlUnit {
     public void fill(ExqlContext exqlContext, ExprResolver exprResolver) throws Exception {
 
         // 解释表达式内容
-        Object obj = exprResolver.executeExpr(expr);
+        Object value = exprResolver.executeExpr(expr);
 
+        if (value instanceof Enum) {
+            value = ((Enum<?>) value).name();
+        }
+        
         // 输出转义的对象内容
-        exqlContext.fillValue(obj);
+        exqlContext.fillValue(value);
     }
 }
