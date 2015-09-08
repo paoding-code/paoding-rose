@@ -23,7 +23,7 @@ public class ExqlContextImpl implements ExqlContext  {
     private static final char COMMA = ',';
 
     // 参数列表
-    protected final ArrayList<Object> params = new ArrayList<Object>();
+    protected final ArrayList<Object> args = new ArrayList<Object>();
 
     // 输出缓冲区
     protected final StringBuilder builder;
@@ -38,8 +38,8 @@ public class ExqlContextImpl implements ExqlContext  {
     }
 
     @Override
-    public Object[] getParams() {
-        return params.toArray();
+    public Object[] getArgs() {
+        return args.toArray();
     }
 
     @Override
@@ -71,7 +71,7 @@ public class ExqlContextImpl implements ExqlContext  {
         } else {
 
             // 直接输出参数, "uid > :var" --> "uid > ?"
-            setParam(obj);
+            addArg(obj);
 
             builder.append(QUESTION);
         }
@@ -92,8 +92,11 @@ public class ExqlContextImpl implements ExqlContext  {
      * 
      * @param value - 参数的内容
      */
-    protected void setParam(Object value) {
-        params.add(value);
+    protected void addArg(Object value) {
+        if (value instanceof Enum) {
+            value = ((Enum<?>) value).name();
+        }
+        args.add(value);
     }
 
     /**
@@ -126,7 +129,7 @@ public class ExqlContextImpl implements ExqlContext  {
                     }
 
                     // 输出参数内容
-                    setParam(value);
+                    addArg(value);
 
                     builder.append(QUESTION);
 
@@ -154,6 +157,6 @@ public class ExqlContextImpl implements ExqlContext  {
         context.fillChar(')');
 
         System.out.println(context.flushOut());
-        System.out.println(Arrays.toString(context.getParams()));
+        System.out.println(Arrays.toString(context.getArgs()));
     }
 }

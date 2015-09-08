@@ -33,7 +33,7 @@ public interface ExqlContext {
      * 
      * @return 所有参数的数组
      */
-    Object[] getParams();
+    Object[] getArgs();
 
     /**
      * 得到输出的语句内容。

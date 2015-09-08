@@ -34,7 +34,7 @@ public interface StatementRuntime {
     StatementMetaData getMetaData();
 
     /**
-     * @return 返回调用DAO方法传入的参数，key为":1"、":2"以及 {@link SQLParam} 注解指定的名称
+     * @return 返回调用DAO方法传入的参数，key为":1"、":2"，以及 {@link SQLParam} 注解指定的名称(不含冒号)
      */
     Map<String, Object> getParameters();
 

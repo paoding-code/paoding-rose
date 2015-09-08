@@ -16,11 +16,9 @@ public interface ExqlPattern {
      * 
      * @param map - 参数表
      * 
-     * @return 语句内容
-     * 
      * @throws Exception
      */
-    String execute(ExqlContext context, Map<String, ?> map) throws Exception;
+    void execute(ExqlContext context, Map<String, ?> map) throws Exception;
 
     /**
      * 输出全部的语句内容。
@@ -30,10 +28,8 @@ public interface ExqlPattern {
      * @param mapVars - 参数表
      * @param mapConsts - 常量表
      * 
-     * @return 语句内容
-     * 
      * @throws Exception
      */
-    String execute(ExqlContext context, Map<String, ?> mapVars, // NL
+    void execute(ExqlContext context, Map<String, ?> mapVars, // NL
             Map<String, ?> mapConsts) throws Exception;
 }

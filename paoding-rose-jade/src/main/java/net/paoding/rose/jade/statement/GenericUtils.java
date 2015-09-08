@@ -158,7 +158,7 @@ public class GenericUtils {
      * 
      * @return {@link Map} 包含类的所有常量
      */
-    public static Map<String, ?> getConstantFrom(Class clazz, // NL
+    public static Map<String, Object> getConstantFrom(Class clazz, // NL
                                                  boolean findAncestor, boolean findInterfaces) {
 
         HashMap<String, Object> map = new HashMap<String, Object>();

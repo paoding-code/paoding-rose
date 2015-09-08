@@ -32,7 +32,7 @@ public class ExqlContextTests extends TestCase {
 
         Object[] expectArray = new Object[] { 102, 11, 12, 24, 25, 31, 32, 33, // NL
                 current, current };
-        Object[] paramArray = context.getParams();
+        Object[] paramArray = context.getArgs();
 
         Assert.assertEquals(expectArray.length, paramArray.length);
         for (int i = 0; i < expectArray.length; i++) {

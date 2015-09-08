@@ -20,11 +20,24 @@ public class ExqlPatternTests extends TestCase {
         String expr5 = "expr5";
 
         // 编译下列语句
+//        ExqlPattern pattern = ExqlPatternImpl
+//                .compile("SELECT #(:expr1.length()), :expr2.class.name,"
+//                        + " ##(:expr3) WHERE #if(:expr4) {e = :expr4} #else {e IS NULL}"
+//                        + "#for(variant in :expr5.bytes) { AND c = :variant}" // NL
+//                        + " GROUP BY ##(:expr1) ASC");// ##(:xxx)已经被ReplacementInterpreter实现，不再由ExqlPatternImpl提供
+
+//      Object[] expectArray = new Object[] { expr1.length(), expr2.getClass().getName(), expr4,
+//                                            expr5.getBytes()[0], expr5.getBytes()[1], expr5.getBytes()[2], expr5.getBytes()[3],
+//                                            expr5.getBytes()[4] };
         ExqlPattern pattern = ExqlPatternImpl
                 .compile("SELECT #(:expr1.length()), :expr2.class.name,"
-                        + " ##(:expr3) WHERE #if(:expr4) {e = :expr4} #else {e IS NULL}"
+                        + " #(:expr3) WHERE #if(:expr4) {e = :expr4} #else {e IS NULL}"
                         + "#for(variant in :expr5.bytes) { AND c = :variant}" // NL
-                        + " GROUP BY ##(:expr1) ASC");
+                        + " GROUP BY #(:expr1) ASC");// 
+        Object[] expectArray = new Object[] { expr1.length(), expr2.getClass().getName(), expr3, expr4,
+                                              expr5.getBytes()[0], expr5.getBytes()[1], expr5.getBytes()[2], expr5.getBytes()[3],
+                                              expr5.getBytes()[4], expr1 };
+        
 
         ExqlContext context = new ExqlContextImpl(1024);
 
@@ -36,14 +49,12 @@ public class ExqlPatternTests extends TestCase {
         map.put("expr4", expr4);
         map.put("expr5", expr5);
 
-        Assert.assertEquals("SELECT ?, ?, expr3 WHERE e = ? AND c = ? AND c = ? "
-                + "AND c = ? AND c = ? AND c = ? GROUP BY expr1 ASC", // NL
-                pattern.execute(context, map));
+        pattern.execute(context, map);
+        Assert.assertEquals("SELECT ?, ?, ? WHERE e = ? AND c = ? AND c = ? "
+                + "AND c = ? AND c = ? AND c = ? GROUP BY ? ASC", // NL
+                context.flushOut());
 
-        Object[] expectArray = new Object[] { expr1.length(), expr2.getClass().getName(), expr4,
-                expr5.getBytes()[0], expr5.getBytes()[1], expr5.getBytes()[2], expr5.getBytes()[3],
-                expr5.getBytes()[4] };
-        Object[] paramArray = context.getParams();
+        Object[] paramArray = context.getArgs();
 
         Assert.assertEquals(expectArray.length, paramArray.length);
         for (int i = 0; i < expectArray.length; i++) {
@@ -76,14 +87,15 @@ public class ExqlPatternTests extends TestCase {
         map.put("expr4", expr4);
         map.put("expr5", expr5);
 
+        pattern.execute(context, map, map);
         Assert.assertEquals("SELECT ?, ?, expr3 WHERE e = ? AND c = ? AND c = ? "
                 + "AND c = ? AND c = ? AND c = ? GROUP BY expr1 ASC", // NL
-                pattern.execute(context, map, map));
+                context.flushOut());
 
         Object[] expectArray = new Object[] { expr1.length(), expr2.getClass().getName(), expr4,
                 expr5.getBytes()[0], expr5.getBytes()[1], expr5.getBytes()[2], expr5.getBytes()[3],
                 expr5.getBytes()[4] };
-        Object[] paramArray = context.getParams();
+        Object[] paramArray = context.getArgs();
 
         Assert.assertEquals(expectArray.length, paramArray.length);
         for (int i = 0; i < expectArray.length; i++) {
@@ -116,14 +128,15 @@ public class ExqlPatternTests extends TestCase {
         map.put("expr4", expr4);
         map.put("expr5", expr5);
 
+        pattern.execute(context, map, map);
         Assert.assertEquals("SELECT ?, ?, expr3 WHERE e = ? AND c = ? AND c = ? "
                 + "AND c = ? AND c = ? AND c = ? GROUP BY expr1 ASC", // NL
-                pattern.execute(context, map, map));
+                context.flushOut());
 
         Object[] expectArray = new Object[] { expr1.length(), expr2.getBytes()[expr1.length() - 1],
                 expr4, expr5.getBytes()[0], expr5.getBytes()[1], expr5.getBytes()[2],
                 expr5.getBytes()[3], expr5.getBytes()[4] };
-        Object[] paramArray = context.getParams();
+        Object[] paramArray = context.getArgs();
 
         Assert.assertEquals(expectArray.length, paramArray.length);
         for (int i = 0; i < expectArray.length; i++) {

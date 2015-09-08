@@ -38,10 +38,6 @@ public class ExprUnit implements ExqlUnit {
 
         // 解释表达式内容
         Object value = exprResolver.executeExpr(expr);
-
-        if (value instanceof Enum) {
-            value = ((Enum<?>) value).name();
-        }
         
         // 输出转义的对象内容
         exqlContext.fillValue(value);

@@ -40,8 +40,11 @@ public class DAOMetaData {
     /**
      * 定义在DAO接口上的常量（包含父接口的）
      */
-    private final Map<String, ?> constants;
+    private final Map<String, Object> constants;
 
+    /**
+     * DAO类上的属性
+     */
     private final Map<String, Object> attributes;
 
     /**
@@ -50,9 +53,9 @@ public class DAOMetaData {
      */
     public DAOMetaData(Class<?> daoClass, DAOConfig config) {
         this.daoClass = daoClass;
-        this.constants = Collections.unmodifiableMap(//
-            GenericUtils.getConstantFrom(daoClass, true, true));
         this.config = config;
+        this.constants = Collections
+            .unmodifiableMap(GenericUtils.getConstantFrom(daoClass, true, true));
         this.attributes = new ConcurrentHashMap<String, Object>(4);
     }
 
@@ -80,7 +83,7 @@ public class DAOMetaData {
         return GenericUtils.resolveTypeVariable(daoClass, declaringClass, typeVarName);
     }
 
-    public Map<String, ?> getConstants() {
+    public Map<String, Object> getConstants() {
         return constants;
     }
 

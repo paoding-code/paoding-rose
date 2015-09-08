@@ -52,7 +52,7 @@ public class ExprResolverImpl implements ExprResolver {
     /**
      * 构造表达式处理器。
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public ExprResolverImpl() {
         Map map = context.getVars();
         map.put(VAR_PREFIX, mapVars);

@@ -73,35 +73,35 @@ public class ExqlPatternImpl implements ExqlPattern {
     }
 
     @Override
-    public String execute(ExqlContext context, Map<String, ?> map) throws Exception {
+    public void execute(ExqlContext context, Map<String, ?> map) throws Exception {
 
         // 执行转换
-        return execute(context, new ExprResolverImpl(map));
+        execute(context, new ExprResolverImpl(map));
     }
 
     @Override
-    public String execute(ExqlContext context, Map<String, ?> mapVars, Map<String, ?> mapConsts)
+    public void execute(ExqlContext context, Map<String, ?> mapVars, Map<String, ?> mapConsts)
             throws Exception {
 
         // 执行转换
-        return execute(context, new ExprResolverImpl(mapVars, mapConsts));
+        execute(context, new ExprResolverImpl(mapVars, mapConsts));
     }
 
     // 执行转换
-    protected String execute(ExqlContext context, ExprResolver exprResolver) throws Exception {
+    protected void execute(ExqlContext context, ExprResolver exprResolver) throws Exception {
 
         // 转换语句内容
         unit.fill(context, exprResolver);
 
-        String flushOut = context.flushOut();
 
         // 输出日志
         if (logger.isDebugEnabled()) {
+            String flushOut = context.flushOut();
+            String args = Arrays.toString(context.getArgs());
             logger.debug("EXQL pattern executing:\n    origin: " + pattern + "\n    result: "
-                    + flushOut + "\n    params: " + Arrays.toString(context.getParams()));
+                    + flushOut + "\n    params: " + args);
         }
 
-        return flushOut;
     }
 
     // 进行简单测试
@@ -112,7 +112,7 @@ public class ExqlPatternImpl implements ExqlPattern {
                 .compile("SELECT #(:expr1.length()), :expr2.class.name,"
                         + " ##(:expr3) WHERE #if(:expr4) {e = :expr4} #else {e IS NULL}"
                         + "#for(variant in :expr5.bytes) { AND c = :variant}" // NL
-                        + " GROUP BY #!(:expr1) ASC");
+                        + " GROUP BY #!(:expr1) ASC {expr3}");
 
         ExqlContext context = new ExqlContextImpl(1024);
 
@@ -123,8 +123,8 @@ public class ExqlPatternImpl implements ExqlPattern {
         map.put("expr3", "expr3");
         map.put("expr4", "expr4");
         map.put("expr5", "expr5");
-
-        System.out.println(pattern.execute(context, map));
-        System.out.println(Arrays.toString(context.getParams()));
+        pattern.execute(context, map);
+        System.out.println(context.flushOut());
+        System.out.println(Arrays.toString(context.getArgs()));
     }
 }

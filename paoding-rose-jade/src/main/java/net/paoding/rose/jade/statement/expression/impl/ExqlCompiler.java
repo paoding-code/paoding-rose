@@ -37,8 +37,12 @@ public class ExqlCompiler {
     private static final String SHARP_ELSE = "#else";
 
     // 正则表达式
+//    private static final Pattern PATTERN_KEYWORD = Pattern.compile( // NL
+//            "\\:\\:|([\\:\\$]{1}[a-zA-Z0-9_\\-\\.]+)|\\{([^\\{\\}]+)\\}\\?|#(#|!|if|for)?");
+    
+    // 正则表达式（##(:xxx)已经由ReplacementInterpreter实现，不在Exql中处理)
     private static final Pattern PATTERN_KEYWORD = Pattern.compile( // NL
-            "\\:\\:|([\\:\\$]{1}[a-zA-Z0-9_\\.]+)|\\{([^\\{\\}]+)\\}\\?|#(#|!|if|for)?");
+            "\\:\\:|([\\:\\$]{1}[a-zA-Z0-9_\\-\\.]+)|\\{([^\\{\\}]+)\\}\\?|#(!|if|for)?");
 
     private static final Pattern PATTERN_IN = Pattern.compile(// NL
             "([a-zA-Z0-9_]*)\\s+in\\s+(.+)");
@@ -130,6 +134,7 @@ public class ExqlCompiler {
 
                 // 编译  {...} 内部的子句
                 ExqlCompiler compiler = new ExqlCompiler(group);
+                System.out.println("DELETE>>>group=" + group);
                 ExqlUnit unit = compiler.compileUnit();
 
                 // 创建   {...}? 形式的子句
@@ -437,12 +442,13 @@ public class ExqlCompiler {
     }
 
     // 进行简单测试
+    // 贴士：##(:xxx) 已经被ReplacementInterpreter实现，
     public static void main(String... args) throws Exception {
 
         String string = "SELECT :expr1, #($expr2.class),"
                 + " WHERE #if(:expr3) {e = $expr3} #else {e IS NULL}"
                 + "#for(variant in $expr4.bytes) { AND c = :variant}" // NL
-                + " {AND d = :expr5}? {AND f = $expr6}?" // NL
+                + " {AND d = :expr-5}? {AND f = $expr6}?" // NL
                 + " BY #!(:expr7) ASC";
 
         // 在输入中查找  PREFIX 字符
@@ -487,7 +493,8 @@ public class ExqlCompiler {
         // map.put("expr6", "expr6");
         map.put("expr7", "expr7");
 
-        System.out.println(pattern.execute(context, map, map));
-        System.out.println(Arrays.toString(context.getParams()));
+        pattern.execute(context, map, map);
+        System.out.println(context.flushOut());
+        System.out.println(Arrays.toString(context.getArgs()));
     }
 }
