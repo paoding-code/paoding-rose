@@ -26,15 +26,22 @@ public class ExqlContextImpl implements ExqlContext  {
     protected final ArrayList<Object> args = new ArrayList<Object>();
 
     // 输出缓冲区
-    protected final StringBuilder builder;
+    protected final StringBuilder builder = new StringBuilder(256);
 
     /**
      * 构造上下文对象。
      * 
      * @param capacity - 缓存的容量
      */
-    public ExqlContextImpl(int capacity) {
-        builder = new StringBuilder(capacity);
+    public ExqlContextImpl() {
+    }
+
+    /**
+     * 清理以便下次使用
+     */
+    public void clear() {
+        this.args.clear();
+        this.builder.setLength(0);
     }
 
     @Override
@@ -144,7 +151,7 @@ public class ExqlContextImpl implements ExqlContext  {
     // 进行简单测试
     public static void main(String... args) throws Exception {
 
-        ExqlContext context = new ExqlContextImpl(1024);
+        ExqlContext context = new ExqlContextImpl();
 
         context.fillText("WHERE uid = ");
         context.fillValue(102);

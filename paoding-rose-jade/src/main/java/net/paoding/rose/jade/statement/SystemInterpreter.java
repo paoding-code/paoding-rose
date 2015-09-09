@@ -32,7 +32,7 @@ import net.paoding.rose.jade.statement.expression.impl.ExqlPatternImpl;
  * @author 廖涵 [in355hz@gmail.com]
  */
 public class SystemInterpreter implements Interpreter {
-
+    
     private ReplacementInterpreter     replacementInterpreter     = new ReplacementInterpreter();
     private PreparestatmentInterpreter preparestatmentInterpreter = new PreparestatmentInterpreter();
 
@@ -54,14 +54,24 @@ public class SystemInterpreter implements Interpreter {
 
         final Pattern PATTERN = Pattern.compile("\\{([a-zA-Z0-9_\\.\\:]+)\\}|##\\((.+)\\)");
 
+
+        final ThreadLocal<StringBuilder> stringBuilderPool = new ThreadLocal<StringBuilder>(){
+            @Override
+            public StringBuilder initialValue() {
+                return new StringBuilder();
+            };
+            
+        };
+
         @Override
         public void interpret(StatementRuntime runtime) {// ##(:xxx)
+            StringBuilder sqlResult = stringBuilderPool.get();
+            sqlResult.setLength(0);
             String sql = runtime.getSQL();
-            StringBuilder sb = new StringBuilder(sql.length() + 200);
             Matcher matcher = PATTERN.matcher(sql);
             int start = 0;
             while (matcher.find(start)) {
-                sb.append(sql.substring(start, matcher.start()));
+                sqlResult.append(sql.substring(start, matcher.start()));
                 String group = matcher.group(); 
                 String key = null;
                 if (group.startsWith("{")) {
@@ -95,15 +105,15 @@ public class SystemInterpreter implements Interpreter {
                 }
                 // replace it
                 if (value != null) {
-                    sb.append(value);
+                    sqlResult.append(value);
                 } else {
-                    sb.append(group);
+                    sqlResult.append(group);
                 }
                 start = matcher.end();
             }
-            sb.append(sql.substring(start));
+            sqlResult.append(sql.substring(start));
 
-            runtime.setSQL(sb.toString());
+            runtime.setSQL(sqlResult.toString());
 
         }
     }
@@ -111,13 +121,23 @@ public class SystemInterpreter implements Interpreter {
     // 动态参数
     static class PreparestatmentInterpreter implements Interpreter {
 
+
+        static final ThreadLocal<ExqlContextImpl> exqlContextPool = new ThreadLocal<ExqlContextImpl>(){
+            @Override
+            public ExqlContextImpl initialValue() {
+                return new ExqlContextImpl();
+            };
+            
+        };
+        
         @Override
         public void interpret(StatementRuntime runtime) {
             // 转换语句中的表达式
-            ExqlPattern pattern = ExqlPatternImpl.compile(runtime.getSQL());
-            ExqlContextImpl context = new ExqlContextImpl(runtime.getSQL().length() + 32);
+            ExqlContextImpl context = exqlContextPool.get();
+            context.clear();
 
             try {
+                ExqlPattern pattern = ExqlPatternImpl.compile(runtime.getSQL());
                 Map<String, Object> constants = runtime.getMetaData().getDAOMetaData()
                     .getConstants();
                 pattern.execute(context, runtime.getParameters(), constants);
@@ -192,7 +212,7 @@ public class SystemInterpreter implements Interpreter {
                      + "(`id`,`uid`,`favable_id`,`addtime`,`ranking`) "//
                      + "values (:1,:2,now(),0)";
         ExqlPattern pattern = ExqlPatternImpl.compile(sql);
-        ExqlContextImpl context = new ExqlContextImpl(sql.length() + 32);
+        ExqlContextImpl context = new ExqlContextImpl();
 
         Map<String, Object> parametersAsMap = new HashMap<String, Object>();
         parametersAsMap.put(":1", "p1");

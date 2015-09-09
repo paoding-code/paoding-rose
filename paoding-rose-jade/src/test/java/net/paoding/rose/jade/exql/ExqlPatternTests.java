@@ -39,7 +39,7 @@ public class ExqlPatternTests extends TestCase {
                                               expr5.getBytes()[4], expr1 };
         
 
-        ExqlContext context = new ExqlContextImpl(1024);
+        ExqlContext context = new ExqlContextImpl();
 
         HashMap<String, Object> map = new HashMap<String, Object>();
 
@@ -77,7 +77,7 @@ public class ExqlPatternTests extends TestCase {
                         + "#for(variant in $expr5.bytes) { AND c = :variant}" // NL
                         + " GROUP BY $expr1 ASC");
 
-        ExqlContext context = new ExqlContextImpl(1024);
+        ExqlContext context = new ExqlContextImpl();
 
         HashMap<String, Object> map = new HashMap<String, Object>();
 
@@ -118,7 +118,7 @@ public class ExqlPatternTests extends TestCase {
                         + "#for(variant in $expr5.bytes) { AND c = :variant}" // NL
                         + " GROUP BY $expr1 ASC");
 
-        ExqlContext context = new ExqlContextImpl(1024);
+        ExqlContext context = new ExqlContextImpl();
 
         HashMap<String, Object> map = new HashMap<String, Object>();
 

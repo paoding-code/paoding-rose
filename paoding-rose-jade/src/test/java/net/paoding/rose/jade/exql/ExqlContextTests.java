@@ -13,7 +13,7 @@ public class ExqlContextTests extends TestCase {
 
         Date current = new Date();
 
-        ExqlContext context = new ExqlContextImpl(1024);
+        ExqlContext context = new ExqlContextImpl();
 
         context.fillText("WHERE uid = ");
         context.fillValue(102);

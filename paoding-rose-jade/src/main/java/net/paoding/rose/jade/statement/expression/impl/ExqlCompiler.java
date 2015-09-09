@@ -481,7 +481,7 @@ public class ExqlCompiler {
         // 编译下列语句
         ExqlPattern pattern = new ExqlCompiler(string).compile();
 
-        ExqlContext context = new ExqlContextImpl(string.length());
+        ExqlContext context = new ExqlContextImpl();
 
         HashMap<String, Object> map = new HashMap<String, Object>();
 
