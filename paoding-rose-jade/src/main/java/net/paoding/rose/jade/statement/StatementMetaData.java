@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
+import net.paoding.rose.jade.annotation.ReturnGeneratedKeys;
 import net.paoding.rose.jade.annotation.SQL;
 import net.paoding.rose.jade.annotation.SQLParam;
 import net.paoding.rose.jade.annotation.SQLType;
@@ -50,12 +51,22 @@ public class StatementMetaData {
      * DAO方法上的原始SQL语句，如果没有执行SQL语句，则根据方法签名生成相应的串辅助debug
      */
     private final String sql;
-    
+
     /**
      * SQL类型（查询类型或者更新类型）：默认由方法名和SQL语句判断，除非强制指定。
      * @see SQLType
      */
     private final SQLType sqlType;
+
+    /**
+     * DAO方法上的ReturnGeneratedKeys注解
+     */
+    private DynamicReturnGeneratedKeys returnGeneratedKeys;
+
+    /**
+     * 
+     */
+    private AfterInvocationCallback afterInvocationCallback;
 
     /**
      * DAO方法的“最低返回类型”。
@@ -67,7 +78,7 @@ public class StatementMetaData {
      * 
      * <pre>
      * //@DAO、@SQL注解从略
-     * public interface BaseDAO[E] {
+     * public interface BaseDAO&lt;E&gt; {
      * 
      *     public E getById(Long id);
      * 
@@ -106,9 +117,19 @@ public class StatementMetaData {
     private final ShardBy shardBy;
 
     private final int parameterCount;
-    
 
+    /**
+     * 框架或插件设置的属性
+     */
     private Map<String, Object> attributes;
+
+    private static final DynamicReturnGeneratedKeys nullDynamicReturnGeneratedKeys = new DynamicReturnGeneratedKeys() {
+
+        @Override
+        public boolean shouldReturnGerneratedKeys(StatementRuntime runtime) {
+            return false;
+        }
+    };
 
     // --------------------------------------------
 
@@ -130,7 +151,7 @@ public class StatementMetaData {
                     int paramStart = toString.indexOf("(");
                     int methodNameStart = toString.lastIndexOf('.', paramStart) + 1;
                     return toString.substring(methodNameStart) + "@" //
-                            + StatementMetaData.this.method.getDeclaringClass().getName();
+                           + StatementMetaData.this.method.getDeclaringClass().getName();
                 }
 
                 @Override
@@ -141,9 +162,24 @@ public class StatementMetaData {
         }
         this.sql = sqlAnnotation.value();
         this.sqlType = resolveSQLType(sqlAnnotation);
+        ReturnGeneratedKeys generatedKeysAnnotation = method
+            .getAnnotation(ReturnGeneratedKeys.class);
+        if (generatedKeysAnnotation != null) {
+            try {
+                this.returnGeneratedKeys = generatedKeysAnnotation.value().newInstance();
+            } catch (InstantiationException e) {
+                throw new IllegalArgumentException(e);
+            } catch (IllegalAccessException e) {
+                throw new IllegalArgumentException(e);
+            }
+        } else {
+            this.returnGeneratedKeys = nullDynamicReturnGeneratedKeys;
+        }
 
-        this.returnType = GenericUtils.resolveTypeVariable(daoMetaData.getDAOClass(), method.getGenericReturnType());
-        this.parameterTypesOfReturnType = GenericUtils.resolveTypeParameters(daoMetaData.getDAOClass(), method.getGenericReturnType());
+        this.returnType = GenericUtils.resolveTypeVariable(daoMetaData.getDAOClass(),
+            method.getGenericReturnType());
+        this.parameterTypesOfReturnType = GenericUtils
+            .resolveTypeParameters(daoMetaData.getDAOClass(), method.getGenericReturnType());
 
         Annotation[][] annotations = method.getParameterAnnotations();
         this.parameterCount = annotations.length;
@@ -151,10 +187,13 @@ public class StatementMetaData {
         int shardByIndex = -1;
         ShardBy shardBy = null;
         for (int index = 0; index < annotations.length; index++) {
-            for (Annotation annotation : annotations[index]) {
+            for (Annotation annotation : annotations[index])
+
+            {
                 if (annotation instanceof ShardBy) {
                     if (shardByIndex >= 0) {
-                        throw new IllegalArgumentException("duplicated @" + ShardBy.class.getName());
+                        throw new IllegalArgumentException(
+                            "duplicated @" + ShardBy.class.getName());
                     }
                     shardByIndex = index;
                     shardBy = (ShardBy) annotation;
@@ -162,6 +201,7 @@ public class StatementMetaData {
                     this.sqlParams[index] = (SQLParam) annotation;
                 }
             }
+
         }
         this.shardByIndex = shardByIndex;
         this.shardBy = shardBy;
@@ -173,6 +213,22 @@ public class StatementMetaData {
 
     public Method getMethod() {
         return method;
+    }
+
+    public DynamicReturnGeneratedKeys getReturnGeneratedKeys() {
+        return returnGeneratedKeys;
+    }
+
+    public void setReturnGeneratedKeys(DynamicReturnGeneratedKeys returnGeneratedKeys) {
+        this.returnGeneratedKeys = returnGeneratedKeys;
+    }
+
+    public AfterInvocationCallback getAfterInvocationCallback() {
+        return afterInvocationCallback;
+    }
+
+    public void setAfterInvocationCallback(AfterInvocationCallback afterInvocationCallback) {
+        this.afterInvocationCallback = afterInvocationCallback;
     }
 
     public Class<?> getReturnType() {
@@ -206,7 +262,7 @@ public class StatementMetaData {
     public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
         return method.getAnnotation(annotationClass);
     }
-    
+
     public SQLType getSQLType() {
         return sqlType;
     }
@@ -237,14 +293,14 @@ public class StatementMetaData {
     public <T> T getAttribute(String name) {
         return (T) (attributes == null ? null : attributes.get(name));
     }
-    
+
     protected SQLType resolveSQLType(SQL sql) {
         SQLType sqlType = sql.type();
         if (sqlType == SQLType.AUTO_DETECT) {
             for (int i = 0; i < SELECT_PATTERNS.length; i++) {
                 // 用正则表达式匹配 SELECT 语句
                 if (SELECT_PATTERNS[i].matcher(getSQL()).find() //
-                        || SELECT_PATTERNS[i].matcher(getMethod().getName()).find()) {
+                    || SELECT_PATTERNS[i].matcher(getMethod().getName()).find()) {
                     sqlType = SQLType.READ;
                     break;
                 }
@@ -276,16 +332,25 @@ public class StatementMetaData {
     }
 
     private static Pattern[] SELECT_PATTERNS = new Pattern[] {
-            //
-            Pattern.compile("^\\s*SELECT.*", Pattern.CASE_INSENSITIVE), //
-            Pattern.compile("^\\s*GET.*", Pattern.CASE_INSENSITIVE), //
-            Pattern.compile("^\\s*FIND.*", Pattern.CASE_INSENSITIVE), //
-            Pattern.compile("^\\s*READ.*", Pattern.CASE_INSENSITIVE), //
-            Pattern.compile("^\\s*QUERY.*", Pattern.CASE_INSENSITIVE), //
-            Pattern.compile("^\\s*COUNT.*", Pattern.CASE_INSENSITIVE), //
-            Pattern.compile("^\\s*SHOW.*", Pattern.CASE_INSENSITIVE), //
-            Pattern.compile("^\\s*DESC.*", Pattern.CASE_INSENSITIVE), //
-            Pattern.compile("^\\s*DESCRIBE.*", Pattern.CASE_INSENSITIVE), //
+                                                               //
+                                                               Pattern.compile("^\\s*SELECT.*",
+                                                                   Pattern.CASE_INSENSITIVE), //
+                                                               Pattern.compile("^\\s*GET.*",
+                                                                   Pattern.CASE_INSENSITIVE), //
+                                                               Pattern.compile("^\\s*FIND.*",
+                                                                   Pattern.CASE_INSENSITIVE), //
+                                                               Pattern.compile("^\\s*READ.*",
+                                                                   Pattern.CASE_INSENSITIVE), //
+                                                               Pattern.compile("^\\s*QUERY.*",
+                                                                   Pattern.CASE_INSENSITIVE), //
+                                                               Pattern.compile("^\\s*COUNT.*",
+                                                                   Pattern.CASE_INSENSITIVE), //
+                                                               Pattern.compile("^\\s*SHOW.*",
+                                                                   Pattern.CASE_INSENSITIVE), //
+                                                               Pattern.compile("^\\s*DESC.*",
+                                                                   Pattern.CASE_INSENSITIVE), //
+                                                               Pattern.compile("^\\s*DESCRIBE.*",
+                                                                   Pattern.CASE_INSENSITIVE), //
     };
 
 }

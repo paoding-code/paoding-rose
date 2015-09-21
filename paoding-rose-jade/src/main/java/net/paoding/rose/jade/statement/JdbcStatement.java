@@ -30,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 
+import net.paoding.rose.jade.annotation.AfterInvocation;
 import net.paoding.rose.jade.annotation.ReturnGeneratedKeys;
 import net.paoding.rose.jade.annotation.SQLType;
 
@@ -48,15 +49,38 @@ public class JdbcStatement implements Statement {
 
     private final Querier querier;
 
+    private final AfterInvocationCallback afterInvocationCallback;
+
     private final boolean batchUpdate;
 
     private final SQLType sqlType;
 
     private final String logPrefix;
 
+    private static final AfterInvocationCallback nullAfterInvocationCallback = new AfterInvocationCallback() {
+
+        @Override
+        public Object execute(StatementRuntime runtime, Object returnValue) {
+            return returnValue;
+        }
+    };
+
     public JdbcStatement(StatementMetaData statementMetaData, SQLType sqlType,
                          Interpreter[] interpreters, Querier querier) {
         this.metaData = statementMetaData;
+        AfterInvocation afterInvocationAnnotation = metaData.getMethod()
+            .getAnnotation(AfterInvocation.class);
+        if (afterInvocationAnnotation != null) {
+            try {
+                this.afterInvocationCallback = afterInvocationAnnotation.value().newInstance();
+            } catch (InstantiationException e) {
+                throw new IllegalArgumentException(e);
+            } catch (IllegalAccessException e) {
+                throw new IllegalArgumentException(e);
+            }
+        } else {
+            this.afterInvocationCallback = nullAfterInvocationCallback;
+        }
         this.interpreters = (interpreters == null) ? new Interpreter[0] : interpreters;
         this.querier = querier;
         this.sqlType = sqlType;
@@ -82,9 +106,9 @@ public class JdbcStatement implements Statement {
             } else {
                 this.batchUpdate = false;
                 if (metaData.getMethod().getAnnotation(ReturnGeneratedKeys.class) != null) {
-                    if (!Number.class.isAssignableFrom(returnType)) {
+                    if (returnType != void.class && !Number.class.isAssignableFrom(returnType)) {
                         throw new InvalidDataAccessApiUsageException(
-                            "error return type, only support numberic type for method with @ReturnGeneratedKeys:"
+                            "error return type, only support numberic/void type for method with @ReturnGeneratedKeys:"
                                                                      + method);
                     }
                 } else if (returnType != void.class && returnType != Boolean.class
@@ -106,6 +130,7 @@ public class JdbcStatement implements Statement {
 
     @Override
     public Object execute(Map<String, Object> parameters) {
+        Object result;
         if (batchUpdate) {
             //
             Iterable<?> iterable = (Iterable<?>) parameters.get(":1");
@@ -130,15 +155,18 @@ public class JdbcStatement implements Statement {
                 runtimes.add(runtime);
                 index++;
             }
-            return querier.execute(sqlType, runtimes.toArray(new StatementRuntime[0]));
+            result = querier.execute(sqlType, runtimes.toArray(new StatementRuntime[0]));
+            result = afterInvocationCallback.execute(runtimes.get(0), result);
         } else {
             StatementRuntime runtime = new StatementRuntimeImpl(metaData, parameters);
             for (Interpreter interpreter : interpreters) {
                 interpreter.interpret(runtime);
             }
             log(parameters, runtime);
-            return querier.execute(sqlType, runtime);
+            result = querier.execute(sqlType, runtime);
+            result = afterInvocationCallback.execute(runtime, result);
         }
+        return result;
 
     }
 

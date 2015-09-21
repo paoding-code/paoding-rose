@@ -15,7 +15,6 @@
  */
 package net.paoding.rose.jade.statement;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +26,6 @@ import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
-import net.paoding.rose.jade.annotation.ReturnGeneratedKeys;
 import net.paoding.rose.jade.annotation.SQLType;
 import net.paoding.rose.jade.dataaccess.DataAccess;
 import net.paoding.rose.jade.dataaccess.DataAccessFactory;
@@ -43,22 +41,17 @@ public class UpdateQuerier implements Querier {
 
     private final Class<?> returnType;
 
-    private final boolean returnGeneratedKeys;
+    private DynamicReturnGeneratedKeys returnGeneratedKeys;
 
     public UpdateQuerier(DataAccessFactory dataAccessFactory, StatementMetaData metaData) {
         this.dataAccessFactory = dataAccessFactory;
-        Method method = metaData.getMethod();
         // 转换基本类型
         Class<?> returnType = metaData.getReturnType();
         if (returnType.isPrimitive()) {
             returnType = ClassUtils.primitiveToWrapper(returnType);
         }
         this.returnType = returnType;
-        if (method.isAnnotationPresent(ReturnGeneratedKeys.class)) {
-            returnGeneratedKeys = true;
-        } else {
-            returnGeneratedKeys = false;
-        }
+        this.returnGeneratedKeys = metaData.getReturnGeneratedKeys();
     }
 
     @Override
@@ -77,7 +70,7 @@ public class UpdateQuerier implements Querier {
         Number result;
         DataAccess dataAccess = dataAccessFactory.getDataAccess(//
             runtime.getMetaData(), runtime.getAttributes());
-        if (returnGeneratedKeys) {
+        if (returnGeneratedKeys.shouldReturnGerneratedKeys(runtime)) {
             ArrayList<Map<String, Object>> keys = new ArrayList<Map<String, Object>>(1);
             KeyHolder generatedKeyHolder = new GeneratedKeyHolder(keys);
             dataAccess.update(runtime.getSQL(), runtime.getArgs(), generatedKeyHolder);

@@ -10,13 +10,13 @@ import java.lang.annotation.Target;
  * 请改为使用ShardBy放在具体的参数前。
  * <p>
  * 如果原来是这样的<br>
- * &reg;ShardParam(name = "page_id", value=":2")<br>
- * &reg;SQL("....where name like :1")<br>
+ * &#64;ShardParam(name = "page_id", value=":2")<br>
+ * &#64;SQL("....where name like :1")<br>
  * public void find(String likeValue, String pageId);
  * <p>
  * 现在改为：<br>
- * &reg;SQL("....where name like :1")<br>
- * public void find(String likeValue, &reg;ShardBy String pageId);
+ * &#64;SQL("....where name like :1")<br>
+ * public void find(String likeValue, &#64;ShardBy String pageId);
  * <p>
  * 
  * 把 {@link ShardParam} 标注在 SQL 查询的散表参数上，说明该参数值用于散库 / 散表。
