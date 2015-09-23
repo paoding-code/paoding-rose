@@ -49,7 +49,7 @@ public @interface ReturnGeneratedKeys {
 
     Class<? extends DynamicReturnGeneratedKeys>value() default Yes.class;
 
-    static class Yes implements DynamicReturnGeneratedKeys {
+    static class Yes extends DynamicReturnGeneratedKeys {
 
         @Override
         public boolean shouldReturnGerneratedKeys(StatementRuntime runtime) {

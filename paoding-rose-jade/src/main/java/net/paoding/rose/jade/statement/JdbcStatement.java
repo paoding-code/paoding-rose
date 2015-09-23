@@ -94,6 +94,7 @@ public class JdbcStatement implements Statement {
             if (types.length > 0 && List.class.isAssignableFrom(types[0])) {
                 this.batchUpdate = true;
                 if (metaData.getMethod().getAnnotation(ReturnGeneratedKeys.class) != null) {
+                    // 批量处理的直接不支持@ReturnGeneratedKeys注解
                     throw new InvalidDataAccessApiUsageException(
                         "batch update method cannot return generated keys: " + method);
                 }
@@ -106,11 +107,8 @@ public class JdbcStatement implements Statement {
             } else {
                 this.batchUpdate = false;
                 if (metaData.getMethod().getAnnotation(ReturnGeneratedKeys.class) != null) {
-                    if (returnType != void.class && !Number.class.isAssignableFrom(returnType)) {
-                        throw new InvalidDataAccessApiUsageException(
-                            "error return type, only support numberic/void type for method with @ReturnGeneratedKeys:"
-                                                                     + method);
-                    }
+                    metaData.getReturnGeneratedKeys().checkMethodReturnType(metaData.getReturnType(),
+                        metaData);
                 } else if (returnType != void.class && returnType != Boolean.class
                            && returnType != Integer.class) {
                     throw new InvalidDataAccessApiUsageException(
