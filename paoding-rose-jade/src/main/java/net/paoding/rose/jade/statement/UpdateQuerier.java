@@ -102,6 +102,8 @@ public class UpdateQuerier implements Querier {
             return result.floatValue();
         } else if (returnType == Number.class) {
             return result;
+        } else if (returnType == String.class || returnType == CharSequence.class) {
+            return String.valueOf(result);
         } else {
             throw new DataRetrievalFailureException(
                 "The generated key is not of a supported numeric type: " + returnType.getName());
