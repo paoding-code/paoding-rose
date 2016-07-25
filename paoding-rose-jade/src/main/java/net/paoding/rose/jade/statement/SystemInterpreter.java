@@ -52,7 +52,7 @@ public class SystemInterpreter implements Interpreter {
      */
     static class ReplacementInterpreter implements Interpreter {
 
-        final Pattern PATTERN = Pattern.compile("\\{([a-zA-Z0-9_\\.\\:]+)\\}|##\\((.+)\\)");
+        final Pattern PATTERN = Pattern.compile("\\{([a-zA-Z0-9_\\.\\:]+)\\}|##\\((.+?)\\)");
 
 
         final ThreadLocal<StringBuilder> stringBuilderPool = new ThreadLocal<StringBuilder>(){
