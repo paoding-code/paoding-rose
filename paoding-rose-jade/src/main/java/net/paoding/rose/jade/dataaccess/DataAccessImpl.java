@@ -79,7 +79,7 @@ public class DataAccessImpl implements DataAccess {
 
             @Override
             public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-                PreparedStatement ps = con.prepareStatement(sql);
+                PreparedStatement ps;
                 if (returnKeys) {
                     ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
                 } else {
