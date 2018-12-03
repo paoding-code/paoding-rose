@@ -81,19 +81,21 @@ public class ResourceRef implements Comparable<ResourceRef> {
                             + Arrays.toString(modifiers));
                 }
             } else {
-                JarFile jarFile = new JarFile(rr.getResource().getFile());
-                Manifest manifest = jarFile.getManifest();
-                if (manifest != null) {
-                    Attributes attributes = manifest.getMainAttributes();
-                    String attrValue = attributes.getValue("rose");
-                    if (attrValue == null) {
-                        attrValue = attributes.getValue("Rose");
-                    }
-                    if (attrValue != null) {
-                        modifiers = StringUtils.split(attrValue, ", ;\n\r\t");
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("modifiers[by manifest.mf][" + rr.getResource().getURI()
-                                    + "]=" + Arrays.toString(modifiers));
+                if(rr.getResource().getFile().exists()){
+                    JarFile jarFile = new JarFile(rr.getResource().getFile());
+                    Manifest manifest = jarFile.getManifest();
+                    if (manifest != null) {
+                        Attributes attributes = manifest.getMainAttributes();
+                        String attrValue = attributes.getValue("rose");
+                        if (attrValue == null) {
+                            attrValue = attributes.getValue("Rose");
+                        }
+                        if (attrValue != null) {
+                            modifiers = StringUtils.split(attrValue, ", ;\n\r\t");
+                            if (logger.isDebugEnabled()) {
+                                logger.debug("modifiers[by manifest.mf][" + rr.getResource().getURI()
+                                        + "]=" + Arrays.toString(modifiers));
+                            }
                         }
                     }
                 }
